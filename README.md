@@ -41,6 +41,9 @@ OpenCV provides various [background subtraction algorithms](https://opencv-pytho
 
 The most common usage of these algorithms is to extract moving objects from a static background.
 Hence, the `createBackgroundSubtractorMOG2()` method is used for performing the second step of gait analysis.
+Here is the result:
+
+![](https://github.com/sarweshshah/gait_analysis)
 
 **NOTE:** The code performs the video processing and polling of video frames, both on the main thread. Since its an I/O bound process, the framerate of the output video becomes slow. (The CPU has to wait for the thread to get a new frame before it can apply background subtraction on it and vice-versa). Hence, we use threads.
-[more...](https://www.pyimagesearch.com/2015/12/21/increasing-webcam-fps-with-python-and-opencv/)
+[more...](https://github.com/sarweshshah/gait_analysis/blob/master/results/background%20subtraction.gif)
