@@ -34,7 +34,7 @@ If the results are printed out without any errors, congratulations !!! You have 
 
 #### Step 1 | Capturing video frames:
 The first step of the program captures image frames from available video file or webcam (by default) and presents it to the main thread for processing.
-The image is turned to grayscale and feed for processing.
+The image is turned to grayscale and fed for processing.
 
 #### Step 2 | Performing background substraction:
 OpenCV provides various [background subtraction algorithms](https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_video/py_bg_subtraction/py_bg_subtraction.html#background-subtraction) for video analysis. 
