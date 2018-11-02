@@ -123,7 +123,6 @@ def getValidPairs(generated_output):
             # Append the detected connections to the global list
             validpairs.append(valid_pair)
         else:  # If no keypoints are detected
-            print("No Connection : k = {}".format(k))
             invalidpairs.append(k)
             validpairs.append([])
     return validpairs, invalidpairs

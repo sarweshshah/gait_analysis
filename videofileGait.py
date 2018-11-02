@@ -22,8 +22,6 @@ while fvs.more():
 
     frame = imutils.resize(frame, width=960)
 
-    # frame = fgbg.apply(frame)
-
     # Applying background subtraction on the capture frame
     frame = fgbg.apply(frame)
 
@@ -57,23 +55,24 @@ while fvs.more():
     # fgmask = cv2.Canny(frame, 100, 200)
 
     # cv2.imshow("skel", skel)
-    cv2.imshow("Frame", frame)
+    cv2.imshow("Output", frame)
 
     k = cv2.waitKey(30) & 0xff
     if k == 27:
         break
-    # if k == 0:  # UP:
+
+    # if cv2.waitKey(33) == ord('w'):  # UP:
     #     backgroundHistory += 1
-    #     print(backgroundHistory)
-    # elif k == 1:  # DOWN:
-    #     if backgroundHistory > 0: backgroundHistory -= 1
-    #     print(backgroundHistory)
-    # elif k == 3:  # RIGHT:
+    #     print("Updated history = ", backgroundHistory)
+    # elif cv2.waitKey(33) == ord('s'):  # DOWN:
+    #     if backgroundHistory > 1: backgroundHistory -= 1
+    #     print("Updated history = ", backgroundHistory)
+    # elif cv2.waitKey(33) == ord('d'):  # RIGHT:
     #     kernelSize += 2
-    #     print(kernelSize)
-    # elif k == 2:  # LEFT:
+    #     print("Updated kernel size = ", kernelSize)
+    # elif cv2.waitKey(33) == ord('a'):  # LEFT:
     #     if kernelSize > 1: kernelSize -= 2
-    #     print(kernelSize)
+    #     print("Updated kernel size = ", kernelSize)
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
