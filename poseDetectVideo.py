@@ -186,7 +186,7 @@ while fvs.more():
     output = net.forward()
 
     # Applying background subtraction on the capture frame
-    frame = fgbg.apply(frame)
+    # frame = fgbg.apply(frame)
 
     detected_keypoints = []
     keypoints_list = np.zeros((0, 3))
@@ -224,7 +224,7 @@ while fvs.more():
             cv2.line(frame, (B[0], A[0]), (B[1], A[1]), colors[i], 3, cv2.LINE_AA)
 
     cv2.imshow("Frame", frame)
-    k = cv2.waitKey(30) & 0xff
+    k = cv2.waitKey(50) & 0xff
     if k == 27:
         break
 

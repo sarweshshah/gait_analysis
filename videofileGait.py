@@ -10,7 +10,7 @@ fvs = FileVideoStream('data/sanghveer.mov', queueSize=512).start()  # with bag
 time.sleep(1.0)
 
 kernelSize = 7
-backgroundHistory = 15
+backgroundHistory = 12
 
 # fgbg = cv2.bgsegm.createBackgroundSubtractorMOG(history=1500)
 fgbg = cv2.createBackgroundSubtractorMOG2(history=backgroundHistory, detectShadows=True)
@@ -55,9 +55,10 @@ while fvs.more():
     # fgmask = cv2.Canny(frame, 100, 200)
 
     # cv2.imshow("skel", skel)
+
     cv2.imshow("Output", frame)
 
-    k = cv2.waitKey(30) & 0xff
+    k = cv2.waitKey(100) & 0xff
     if k == 27:
         break
 
