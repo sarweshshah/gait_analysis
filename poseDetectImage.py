@@ -3,7 +3,7 @@ import time
 import cv2
 import numpy as np
 
-image1 = cv2.imread("group.jpg")
+image1 = cv2.imread("data/image.jpg")
 
 protoFile = "pose/coco/pose_deploy_linevec.prototxt"
 weightsFile = "pose/coco/pose_iter_440000.caffemodel"
@@ -195,10 +195,6 @@ for part in range(nPoints):
     detected_keypoints.append(keypoints_with_id)
 
 frameClone = image1.copy()
-for i in range(nPoints):
-    for j in range(len(detected_keypoints[i])):
-        cv2.circle(frameClone, detected_keypoints[i][j][0:2], 5, colors[i], -1, cv2.LINE_AA)
-cv2.imshow("Keypoints", frameClone)
 
 valid_pairs, invalid_pairs = getValidPairs(output)
 personwiseKeypoints = getPersonwiseKeypoints(valid_pairs, invalid_pairs)
@@ -211,6 +207,8 @@ for i in range(17):
         B = np.int32(keypoints_list[index.astype(int), 0])
         A = np.int32(keypoints_list[index.astype(int), 1])
         cv2.line(frameClone, (B[0], A[0]), (B[1], A[1]), colors[i], 3, cv2.LINE_AA)
+
+frameClone = cv2.addWeighted(image1, 0.7, frameClone, 0.5, 0.0)
 
 cv2.imshow("Detected Pose", frameClone)
 cv2.waitKey(0)
