@@ -145,8 +145,7 @@ def getPersonwiseKeypoints(valid_pairs, invalid_pairs):
 
                 if found:
                     personwise_keypoints[person_idx][indexB] = partBs[i]
-                    personwise_keypoints[person_idx][-1] += keypoints_list[partBs[i].astype(int), 2] + valid_pairs[k][i][
-                        2]
+                    personwise_keypoints[person_idx][-1] += keypoints_list[partBs[i].astype(int), 2] + valid_pairs[k][i][2]
 
                 # if find no partA in the subset, create a new subset
                 elif not found and k < 17:

@@ -36,7 +36,7 @@ If the results are printed out without any errors, congratulations !!! You have 
 The first step of the program captures image frames from available video file or webcam (by default) and presents it to the main thread for processing.
 The image is turned to grayscale and fed for processing.
 
-#### Step 2 | Performing background substraction:
+#### Performing background substraction (not required):
 OpenCV provides various [background subtraction algorithms](https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_video/py_bg_subtraction/py_bg_subtraction.html#background-subtraction) for video analysis. 
 
 The most common usage of these algorithms is to extract moving objects from a static background.
@@ -47,3 +47,9 @@ Here is the result:
 
 **NOTE:** The code performs the video processing and polling of video frames, both on the main thread. Since its an I/O bound process, the framerate of the output video becomes slow. (The CPU has to wait for the thread to get a new frame before it can apply background subtraction on it and vice-versa). Hence, we use threads.
 [more...](https://www.pyimagesearch.com/2015/12/21/increasing-webcam-fps-with-python-and-opencv/)
+
+#### Step 2 | Pose Detection:
+The [OpenPose deep learning library](https://github.com/CMU-Perceptual-Computing-Lab/openpose) developed by Perceptual Computing Lab at Carnegie Mellon University provides with specific weight files and model to detect the pose of any individual in a picture. These models accurately predict the joints inside the picture and even draw individual specific skeletons around each one of them.
+This first layer of information can serve as data points for analysing a complete gait cycle of an individual.
+
+**NOTE:** The background substraction step was removed later as the DNN code does not accept processed pictures as input. Hence that step is not necessary and can be ignored.
