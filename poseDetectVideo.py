@@ -1,5 +1,6 @@
 # import the necessary packages
 import time
+
 import cv2
 import imutils
 import numpy as np
@@ -172,6 +173,8 @@ while fvs.more():
     frame = fvs.read()
     frame = imutils.resize(frame, width=960)
 
+    frameClone = frame.copy()
+
     frameWidth = frame.shape[1]
     frameHeight = frame.shape[0]
 
@@ -221,7 +224,9 @@ while fvs.more():
                 continue
             B = np.int32(keypoints_list[index.astype(int), 0])
             A = np.int32(keypoints_list[index.astype(int), 1])
-            cv2.line(frame, (B[0], A[0]), (B[1], A[1]), colors[i], 3, cv2.LINE_AA)
+            cv2.line(frame, (B[0], A[0]), (B[1], A[1]), colors[i], 2, cv2.LINE_AA)
+
+    frame = cv2.addWeighted(frameClone, 0.5, frame, 0.5, 0.0)
 
     cv2.imshow("Frame", frame)
     k = cv2.waitKey(50) & 0xff

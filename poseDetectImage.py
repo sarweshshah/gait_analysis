@@ -5,8 +5,8 @@ import numpy as np
 
 image1 = cv2.imread("data/image.jpg")
 
-protoFile = "pose/coco/pose_deploy_linevec.prototxt"
-weightsFile = "pose/coco/pose_iter_440000.caffemodel"
+openposeProtoFile = "pose/coco/pose_deploy_linevec.prototxt"
+openposeWeightsFile = "pose/coco/pose_iter_440000.caffemodel"
 nPoints = 18
 # COCO Output Format
 keypointsMapping = ['Nose', 'Neck', 'R-Sho', 'R-Elb', 'R-Wr', 'L-Sho', 'L-Elb', 'L-Wr', 'R-Hip', 'R-Knee', 'R-Ank',
@@ -163,7 +163,7 @@ frameWidth = image1.shape[1]
 frameHeight = image1.shape[0]
 
 t = time.time()
-net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
+net = cv2.dnn.readNetFromCaffe(openposeProtoFile, openposeWeightsFile)
 
 # Fix the input Height and get the width according to the Aspect Ratio
 inHeight = 368
