@@ -12,8 +12,8 @@ time.sleep(1.0)
 kernelSize = 7
 backgroundHistory = 15
 
-protoFile = "pose/coco/pose_deploy_linevec.prototxt"
-weightsFile = "pose/coco/pose_iter_440000.caffemodel"
+openposeProtoFile = "pose/coco/pose_deploy_linevec.prototxt"
+openposeWeightsFile = "pose/coco/pose_iter_440000.caffemodel"
 nPoints = 18
 
 # COCO Output Format
@@ -183,7 +183,7 @@ while fvs.more():
     inWidth = int((inHeight / frameHeight) * frameWidth)
     inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False)
 
-    net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
+    net = cv2.dnn.readNetFromCaffe(openposeProtoFile, openposeWeightsFile)
 
     net.setInput(inpBlob)
     output = net.forward()

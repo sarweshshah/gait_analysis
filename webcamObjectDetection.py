@@ -1,3 +1,5 @@
+# Refer to the following page https://www.pyimagesearch.com/2017/09/18/real-time-object-detection-with-deep-learning-and-opencv/
+
 import argparse
 import time
 
@@ -11,19 +13,18 @@ from imutils.video import VideoStream
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--prototxt", required=True, help="path to Caffe 'deploy' prototxt file")
 ap.add_argument("-m", "--model", required=True, help="path to Caffe pre-trained model")
-ap.add_argument("-c", "--confidence", type=float, default=0.5, help="minimum probability to filter weak detections")
+ap.add_argument("-c", "--confidence", type=float, default=0.2, help="minimum probability to filter weak detections")
 args = vars(ap.parse_args())
 
 # initialize the list of class labels MobileNet SSD was trained to
 # detect, then generate a set of bounding box colors for each class
 CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow",
-           "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor",
-           "book"]
+           "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
 # load our serialized model from disk
 print("[INFO] loading model...")
-net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
+objnet = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 
 # initialize the video stream, allow the cammera sensor to warmup,
 # and initialize the FPS counter
@@ -45,8 +46,8 @@ while True:
 
     # pass the blob through the network and obtain the detections and
     # predictions
-    net.setInput(blob)
-    detections = net.forward()
+    objnet.setInput(blob)
+    detections = objnet.forward()
 
     # loop over the detections
     for i in np.arange(0, detections.shape[2]):
