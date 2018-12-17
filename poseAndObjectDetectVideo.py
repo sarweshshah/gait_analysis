@@ -6,18 +6,18 @@ import imutils
 import numpy as np
 from imutils.video import FileVideoStream
 
-fvs = FileVideoStream('data/sarwesh.mov', queueSize=1024).start()  # with bag
+fvs = FileVideoStream('data/texting.mov', queueSize=1024).start()  # with bag
 time.sleep(1.0)
 
 kernelSize = 7
 backgroundHistory = 15
 
-openposeProtoFile = "pose/coco/pose_deploy_linevec.prototxt"
-openposeWeightsFile = "pose/coco/pose_iter_440000.caffemodel"
+openposeProtoFile = "dnn_models/pose/coco/pose_deploy_linevec.prototxt"
+openposeWeightsFile = "dnn_models/pose/coco/pose_iter_440000.caffemodel"
 nPoints = 18
 
-objectdetectionProtoFile = "object_detection/MobileNetSSD_deploy.prototxt"
-objectdetectionWeightsFile = "object_detection/MobileNetSSD_deploy.caffemodel"
+objectdetectionProtoFile = "dnn_models/object_detection/MobileNetSSD_deploy.prototxt"
+objectdetectionWeightsFile = "dnn_models/object_detection/MobileNetSSD_deploy.caffemodel"
 
 # COCO Output Format
 keypointsMapping = ['Nose', 'Neck', 'R-Sho', 'R-Elb', 'R-Wr', 'L-Sho', 'L-Elb', 'L-Wr', 'R-Hip', 'R-Knee', 'R-Ank',
@@ -174,9 +174,6 @@ def getPersonwiseKeypoints(validpairs, invalidpairs):
                     personwise_keypoints = np.vstack([personwise_keypoints, row])
     return personwise_keypoints
 
-
-fgbg = cv2.createBackgroundSubtractorMOG2(history=backgroundHistory, detectShadows=True)
-kernel = np.ones((kernelSize, kernelSize), np.uint8)
 
 while fvs.more():
     frame = fvs.read()

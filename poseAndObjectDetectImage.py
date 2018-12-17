@@ -6,15 +6,15 @@ import imutils
 import numpy as np
 from imutils.video import FileVideoStream
 
-fvs = FileVideoStream('data/sarwesh.mov', queueSize=1024).start()  # with bag
+theImage = cv2.imread("data/distracted-walking.jpg")
 time.sleep(1.0)
-
-kernelSize = 7
-backgroundHistory = 15
 
 openposeProtoFile = "dnn_models/pose/coco/pose_deploy_linevec.prototxt"
 openposeWeightsFile = "dnn_models/pose/coco/pose_iter_440000.caffemodel"
 nPoints = 18
+
+objectdetectionProtoFile = "dnn_models/object_detection/MobileNetSSD_deploy.prototxt"
+objectdetectionWeightsFile = "dnn_models/object_detection/MobileNetSSD_deploy.caffemodel"
 
 # COCO Output Format
 keypointsMapping = ['Nose', 'Neck', 'R-Sho', 'R-Elb', 'R-Wr', 'L-Sho', 'L-Elb', 'L-Wr', 'R-Hip', 'R-Knee', 'R-Ank',
@@ -35,6 +35,12 @@ mapIdx = [[31, 32], [39, 40], [33, 34], [35, 36], [41, 42], [43, 44],
 colors = [[0, 100, 255], [0, 100, 255], [0, 255, 255], [0, 100, 255], [0, 255, 255], [0, 100, 255],
           [0, 255, 0], [255, 200, 100], [255, 0, 255], [0, 255, 0], [255, 200, 100], [255, 0, 255],
           [0, 0, 255], [255, 0, 0], [200, 200, 0], [255, 0, 0], [200, 200, 0], [0, 0, 0]]
+
+# initialize the list of class labels MobileNet SSD was trained to
+# detect, then generate a set of bounding box colors for each class
+CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow",
+           "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
+COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
 
 def getKeypoints(prob_map, thres=0.1):
@@ -166,73 +172,80 @@ def getPersonwiseKeypoints(validpairs, invalidpairs):
     return personwise_keypoints
 
 
-fgbg = cv2.createBackgroundSubtractorMOG2(history=backgroundHistory, detectShadows=True)
-kernel = np.ones((kernelSize, kernelSize), np.uint8)
+frameClone = theImage.copy()
 
-while fvs.more():
-    frame = fvs.read()
-    frame = imutils.resize(frame, width=960)
+frameWidth = theImage.shape[1]
+frameHeight = theImage.shape[0]
 
-    frameClone = frame.copy()
+# Fix the input Height and get the width according to the Aspect Ratio
+inHeight = 368
+inWidth = int((inHeight / frameHeight) * frameWidth)
+inpBlob = cv2.dnn.blobFromImage(theImage, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False)
 
-    frameWidth = frame.shape[1]
-    frameHeight = frame.shape[0]
+net = cv2.dnn.readNetFromCaffe(openposeProtoFile, openposeWeightsFile)
+objnet = cv2.dnn.readNetFromCaffe(objectdetectionProtoFile, objectdetectionWeightsFile)
 
-    # Fix the input Height and get the width according to the Aspect Ratio
-    inHeight = 368
-    inWidth = int((inHeight / frameHeight) * frameWidth)
-    inpBlob = cv2.dnn.blobFromImage(frame, 1.0 / 255, (inWidth, inHeight), (0, 0, 0), swapRB=False, crop=False)
+net.setInput(inpBlob)
+output = net.forward()
 
-    net = cv2.dnn.readNetFromCaffe(openposeProtoFile, openposeWeightsFile)
+# pass the blob through the network and obtain the detections and predictions
+objnet.setInput(inpBlob)
+detections = objnet.forward()
 
-    net.setInput(inpBlob)
-    output = net.forward()
+# loop over the detections
+for i in np.arange(0, detections.shape[2]):
+    # extract the confidence (i.e., probability) associated with
+    # the prediction
+    confidence = detections[0, 0, i, 2]
 
-    # Applying background subtraction on the capture frame
-    # frame = fgbg.apply(frame)
+    # filter out weak detections by ensuring the `confidence` is
+    # greater than the minimum confidence
+    if confidence > 0.6:
+        # extract the index of the class label from the
+        # `detections`, then compute the (x, y)-coordinates of
+        # the bounding box for the object
+        idx = int(detections[0, 0, i, 1])
+        box = detections[0, 0, i, 3:7] * np.array([frameWidth, frameHeight, frameWidth, frameHeight])
+        (startX, startY, endX, endY) = box.astype("int")
 
-    detected_keypoints = []
-    keypoints_list = np.zeros((0, 3))
-    keypoint_id = 0
-    threshold = 0.1
+        # draw the prediction on the frame
+        label = "{}: {:.2f}%".format(CLASSES[idx], confidence * 100)
+        cv2.rectangle(theImage, (startX, startY), (endX, endY), COLORS[idx], 2)
+        y = startY - 15 if startY - 15 > 15 else startY + 15
+        cv2.putText(frameClone, label, (startX, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
 
-    for part in range(nPoints):
-        probMap = output[0, part, :, :]
-        probMap = cv2.resize(probMap, (frame.shape[1], frame.shape[0]))
-        keypoints = getKeypoints(probMap, threshold)
+detected_keypoints = []
+keypoints_list = np.zeros((0, 3))
+keypoint_id = 0
+threshold = 0.1
 
-        keypoints_with_id = []
-        for i in range(len(keypoints)):
-            keypoints_with_id.append(keypoints[i] + (keypoint_id,))
-            keypoints_list = np.vstack([keypoints_list, keypoints[i]])
-            keypoint_id += 1
+for part in range(nPoints):
+    probMap = output[0, part, :, :]
+    probMap = cv2.resize(probMap, (theImage.shape[1], theImage.shape[0]))
+    keypoints = getKeypoints(probMap, threshold)
 
-        detected_keypoints.append(keypoints_with_id)
+    keypoints_with_id = []
+    for i in range(len(keypoints)):
+        keypoints_with_id.append(keypoints[i] + (keypoint_id,))
+        keypoints_list = np.vstack([keypoints_list, keypoints[i]])
+        keypoint_id += 1
 
-    #    for i in range(nPoints):
-    #        for j in range(len(detected_keypoints[i])):
-    #            cv2.circle(frame, detected_keypoints[i][j][0:2], 5, colors[i], -1, cv2.LINE_AA)
-    #    cv2.imshow("Keypoints", frame)
+    detected_keypoints.append(keypoints_with_id)
 
-    valid_pairs, invalid_pairs = getValidPairs(output)
-    personwiseKeypoints = getPersonwiseKeypoints(valid_pairs, invalid_pairs)
+valid_pairs, invalid_pairs = getValidPairs(output)
+personwiseKeypoints = getPersonwiseKeypoints(valid_pairs, invalid_pairs)
 
-    for i in range(17):
-        for n in range(len(personwiseKeypoints)):
-            index = personwiseKeypoints[n][np.array(POSE_PAIRS[i])]
-            if -1 in index:
-                continue
-            B = np.int32(keypoints_list[index.astype(int), 0])
-            A = np.int32(keypoints_list[index.astype(int), 1])
-            cv2.line(frame, (B[0], A[0]), (B[1], A[1]), colors[i], 2, cv2.LINE_AA)
+for i in range(17):
+    for n in range(len(personwiseKeypoints)):
+        index = personwiseKeypoints[n][np.array(POSE_PAIRS[i])]
+        if -1 in index:
+            continue
+        B = np.int32(keypoints_list[index.astype(int), 0])
+        A = np.int32(keypoints_list[index.astype(int), 1])
+        cv2.line(theImage, (B[0], A[0]), (B[1], A[1]), colors[i], 2, cv2.LINE_AA)
 
-    frame = cv2.addWeighted(frameClone, 0.5, frame, 0.5, 0.0)
+frame = cv2.addWeighted(frameClone, 0.5, theImage, 0.5, 0.0)
 
-    cv2.imshow("Frame", frame)
-    k = cv2.waitKey(50) & 0xff
-    if k == 27:
-        break
+cv2.imshow("Detected Pose", frame)
+cv2.waitKey(0)
 
-# do a bit of cleanup
-cv2.destroyAllWindows()
-fvs.stop()

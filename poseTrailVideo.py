@@ -9,8 +9,8 @@ from imutils.video import FileVideoStream
 fvs = FileVideoStream('data/sarwesh1.mov', queueSize=1024).start()  # with bag
 time.sleep(1.0)
 
-openposeProtoFile = "pose/coco/pose_deploy_linevec.prototxt"
-openposeWeightsFile = "pose/coco/pose_iter_440000.caffemodel"
+openposeProtoFile = "dnn_models/pose/coco/pose_deploy_linevec.prototxt"
+openposeWeightsFile = "dnn_models/pose/coco/pose_iter_440000.caffemodel"
 nPoints = 18
 
 # COCO Output Format
@@ -58,7 +58,7 @@ keypoint_stack = []
 
 while fvs.more():
     frame = fvs.read()
-    frame = imutils.resize(frame, width=800)
+    frame = imutils.resize(frame, width=1080)
 
     frameClone = frame.copy()
 
