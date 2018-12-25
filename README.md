@@ -58,6 +58,7 @@ This first layer of information can serve as data points for analysing a complet
 If the posiiton of the joints of orthogonal view are traced on screen regularly at an interval of 1 sec, the corresponding snapshot of the movement can provide multiple information.
 The distance between the adjoining points will give the instantenous speed of the joint (Time interval of 1 sec being constant).
 The tangential angle gives the angle at the joint. This can give us useful info like the hip angle, calf angle, etc.
+These 'keys' are similar to keys used in 3D motion capture animations to record position of individual joints which inturn becomes the basework of the entire animation.
 
 The algorithm produced the following image for the side view of my walk:
 
