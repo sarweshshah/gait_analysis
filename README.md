@@ -53,3 +53,12 @@ The [OpenPose deep learning library](https://github.com/CMU-Perceptual-Computing
 This first layer of information can serve as data points for analysing a complete gait cycle of an individual.
 
 **NOTE:** The background substraction step was removed later as the DNN code does not accept processed pictures as input. Hence that step is not necessary and can be ignored.
+
+#### Step 3 | Trails of Recognised Joints:
+If the posiiton of the joints of orthogonal view are traced on screen regularly at an interval of 1 sec, the corresponding snapshot of the movement can provide multiple information.
+The distance between the adjoining points will give the instantenous speed of the joint (Time interval of 1 sec being constant).
+The tangential angle gives the angle at the joint. This can give us useful info like the hip angle, calf angle, etc.
+
+The algorithm produced the following image for the side view of my walk:
+
+![](https://github.com/sarweshshah/gait_analysis/blob/master/results/pose%20trail.gif)
