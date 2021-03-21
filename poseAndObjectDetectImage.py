@@ -2,11 +2,9 @@
 import time
 
 import cv2
-import imutils
 import numpy as np
-from imutils.video import FileVideoStream
 
-theImage = cv2.imread("data/distracted-walking.jpg")
+theImage = cv2.imread("data/distracted-walking.jpg")  # Add image in the data folder to test this code
 time.sleep(1.0)
 
 openposeProtoFile = "dnn_models/pose/coco/pose_deploy_linevec.prototxt"

@@ -6,7 +6,7 @@ import imutils
 import numpy as np
 from imutils.video import FileVideoStream
 
-fvs = FileVideoStream('data/sarwesh1.mov', queueSize=1024).start()  # with bag
+fvs = FileVideoStream('data/sarwesh1.mp4', queue_size=1024).start()  # with bag
 time.sleep(1.0)
 
 openposeProtoFile = "dnn_models/pose/coco/pose_deploy_linevec.prototxt"

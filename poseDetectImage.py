@@ -3,7 +3,7 @@ import time
 import cv2
 import numpy as np
 
-image1 = cv2.imread("data/image.jpg")
+image1 = cv2.imread("data/image.jpg")  # Add image in the data folder to test this code
 
 openposeProtoFile = "pose/coco/pose_deploy_linevec.prototxt"
 openposeWeightsFile = "pose/coco/pose_iter_440000.caffemodel"
