@@ -2,5 +2,5 @@ venv
 .idea
 *.prototxt
 *.caffemodel
-*.mp4
 *.mov
+.DS_Store
