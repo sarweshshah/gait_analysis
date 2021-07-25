@@ -6,7 +6,7 @@ import imutils
 import numpy as np
 from imutils.video import FileVideoStream
 
-fvs = FileVideoStream('data/sarwesh.mp4', queue_size=1024).start()
+fvs = FileVideoStream('data/hydrocephalus.mp4', queue_size=1024).start()
 time.sleep(1.0)
 
 openposeProtoFile = "dnn_models/pose/coco/pose_deploy_linevec.prototxt"
@@ -41,7 +41,7 @@ def getKeypoints(prob_map, thres=0.1):
     keypoints_array = []
 
     # find the blobs
-    contours, _ = cv2.findContours(map_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours, _ = cv2.findContours(map_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # for each blob find the maxima
     for cnt in contours:
