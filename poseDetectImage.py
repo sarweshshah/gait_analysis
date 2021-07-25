@@ -36,7 +36,7 @@ def getKeypoints(prob_map, thres=0.1):
     keyPoints = []
 
     # find the blobs
-    _, contours, _ = cv2.findContours(mapMask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(mapMask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     # for each blob find the maxima
     for cnt in contours:
@@ -145,7 +145,8 @@ def getPersonwiseKeypoints(valid_pairs, invalid_pairs):
 
                 if found:
                     personwise_keypoints[person_idx][indexB] = partBs[i]
-                    personwise_keypoints[person_idx][-1] += keypoints_list[partBs[i].astype(int), 2] + valid_pairs[k][i][2]
+                    personwise_keypoints[person_idx][-1] += keypoints_list[partBs[i].astype(int), 2] + \
+                                                            valid_pairs[k][i][2]
 
                 # if find no partA in the subset, create a new subset
                 elif not found and k < 17:
@@ -158,8 +159,7 @@ def getPersonwiseKeypoints(valid_pairs, invalid_pairs):
     return personwise_keypoints
 
 
-frameWidth = image1.shape[1]
-frameHeight = image1.shape[0]
+frameHeight, frameWidth, _ = image1.shape
 
 t = time.time()
 net = cv2.dnn.readNetFromCaffe(openposeProtoFile, openposeWeightsFile)
