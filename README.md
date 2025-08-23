@@ -3,6 +3,52 @@
 Gait analysis is analysing an individual by their walking pattern and turns out to be a reliable indentification source.
 As it turns out, it is as reliable and unique as one's fingerprint and retina scan.
 
+## 🆕 Advanced TCN-Based Gait Analysis System
+
+This repository now includes a comprehensive **Temporal Convolutional Network (TCN)** system for markerless gait analysis using OpenPose BODY_25 model. 
+
+**Key Features:**
+- OpenPose BODY_25 integration with foot keypoints
+- Advanced data preprocessing with gap-filling and filtering
+- TCN architecture for temporal sequence modeling
+- Cross-validation training pipeline
+- Comprehensive evaluation metrics
+
+**Project Structure:**
+```
+gait_analysis/
+├── main_gait_analysis.py          # Main pipeline orchestrator
+├── openpose_integration.py        # OpenPose processing module
+├── gait_data_preprocessing.py     # Data preprocessing and feature extraction
+├── tcn_gait_model.py             # Temporal Convolutional Network model
+├── gait_training.py              # Training and evaluation module
+├── test_system.py                # System testing and validation
+├── archive/                      # Legacy scripts (see archive/README.md)
+├── data/                         # Input data directory
+├── results/                      # Output results directory
+└── dnn_models/                   # Pre-trained models
+```
+
+**Quick Start:**
+```bash
+# Setup environment
+./setup_environment.sh  # macOS/Linux
+# or
+setup_environment.bat   # Windows
+
+# Run analysis
+source .venv/bin/activate
+python main_gait_analysis.py --help
+```
+
+**For detailed documentation, see:** [README_TCN_Gait_Analysis.md](README_TCN_Gait_Analysis.md)
+
+**Note:** Legacy scripts from the initial development phase have been moved to the `archive/` directory. See [archive/README.md](archive/README.md) for details about the archived files and migration notes.
+
+---
+
+## Original Basic Gait Analysis System
+
 Following code explore the possibility to do the same by invovling following steps:
 - Capturing image sequence
 - Background modeling and Image subtraction
