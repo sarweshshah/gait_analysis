@@ -33,8 +33,6 @@ To check if you have successfully installed opencv, run the following command in
 If the results are printed out without any errors, congratulations !!! 
 You have installed MediaPipe successfully.
 
-<br>
-
 #### Step 1 | Capturing video frames:
 The first step of the program captures image frames from available video file or webcam (by default) and presents it to the main thread for processing.
 The image is turned to grayscale and fed for processing.
