@@ -49,5 +49,5 @@ logs/
 
 # Results
 gait_analysis_results/
-openpose_output/
+mediapipe_output/
 test_results/

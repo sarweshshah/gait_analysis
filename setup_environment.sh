@@ -40,21 +40,12 @@ pip install -r requirements.txt
 
 # Create necessary directories
 echo "📁 Creating necessary directories..."
-mkdir -p dnn_models/pose/body_25
 mkdir -p data
 mkdir -p results
+mkdir -p mediapipe_output
 
-# Download BODY_25 model files if they don't exist
-echo "🤖 Checking BODY_25 model files..."
-if [ ! -f "dnn_models/pose/body_25/pose_iter_584000.caffemodel" ]; then
-    echo "📥 Downloading BODY_25 model files..."
-    cd dnn_models/pose/body_25
-    curl -O http://posefs1.perception.cs.cmu.edu/OpenPose/models/pose/body_25/pose_iter_584000.caffemodel
-    curl -O http://posefs1.perception.cs.cmu.edu/OpenPose/models/pose/body_25/pose_deploy.prototxt
-    cd ../../..
-else
-    echo "✅ BODY_25 model files already exist"
-fi
+# MediaPipe models are auto-downloaded on first use
+echo "🤖 MediaPipe models will be auto-downloaded on first use"
 
 # Test the installation
 echo "🧪 Testing installation..."

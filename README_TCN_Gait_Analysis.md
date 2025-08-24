@@ -1,10 +1,10 @@
 # Temporal Convolutional Network (TCN) for Markerless Gait Analysis
 
-A comprehensive system for markerless gait analysis using OpenPose-extracted 2D human pose data and Temporal Convolutional Networks (TCNs). This system is designed to detect gait events (heel strike, toe-off) and phases (stance, swing) from video sequences without requiring expensive motion capture equipment.
+A comprehensive system for markerless gait analysis using MediaPipe-extracted 2D human pose data and Temporal Convolutional Networks (TCNs). This system is designed to detect gait events (heel strike, toe-off) and phases (stance, swing) from video sequences without requiring expensive motion capture equipment.
 
 ## Key Features
 
-- **OpenPose BODY_25 Integration**: Uses the BODY_25 model with foot keypoints for comprehensive gait analysis
+- **MediaPipe Pose Integration**: Uses MediaPipe pose estimation with foot keypoints for comprehensive gait analysis
 - **Advanced Data Preprocessing**: Gap-filling, low-pass filtering, and coordinate normalization
 - **TCN Architecture**: Temporal Convolutional Networks with dilated convolutions for long-range dependencies
 - **Cross-Validation**: Robust evaluation with k-fold cross-validation
@@ -28,7 +28,7 @@ A comprehensive system for markerless gait analysis using OpenPose-extracted 2D 
 ### Prerequisites
 
 - Python 3.7+
-- OpenPose (for pose estimation)
+- MediaPipe (for pose estimation)
 - CUDA-compatible GPU (recommended for faster processing)
 
 ### 1. Clone the Repository
@@ -67,23 +67,16 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 3. Install OpenPose
+### 3. Install MediaPipe
 
-Follow the official OpenPose installation guide:
-- [OpenPose Installation](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/installation/README.md)
-
-### 4. Download BODY_25 Model
-
-The system will automatically download the BODY_25 model files on first run, or you can manually download them:
-
+Install MediaPipe using pip:
 ```bash
-# Create model directory
-mkdir -p dnn_models/pose/body_25
-
-# Download model files
-wget http://posefs1.perception.cs.cmu.edu/OpenPose/models/pose/body_25/pose_iter_584000.caffemodel -P dnn_models/pose/body_25/
-wget http://posefs1.perception.cs.cmu.edu/OpenPose/models/pose/body_25/pose_deploy.prototxt -P dnn_models/pose/body_25/
+pip install mediapipe>=0.10.0
 ```
+
+### 4. MediaPipe Models (Auto-downloaded)
+
+MediaPipe models are automatically downloaded on first use. No manual download required.
 
 ### 5. Activate Virtual Environment (if not already activated)
 
@@ -105,7 +98,7 @@ This will run a comprehensive test of all system components.
 
 The system consists of four main components:
 
-### 1. OpenPose Integration (`openpose_integration.py`)
+### 1. MediaPipe Integration (`mediapipe_integration.py`)
 - Processes videos with BODY_25 model
 - Extracts 2D pose keypoints including foot landmarks
 - Manages JSON output files
@@ -134,7 +127,7 @@ The system consists of four main components:
 
 ### BODY_25 Keypoints
 
-The system uses OpenPose's BODY_25 model which includes 25 keypoints:
+The system uses MediaPipe's pose estimation which includes 33 landmarks mapped to 25 keypoints:
 
 ```
 0: Nose, 1: Neck, 2: RShoulder, 3: RElbow, 4: RWrist,
@@ -265,16 +258,16 @@ python main_gait_analysis.py \
     --output event_results/
 ```
 
-### 2. OpenPose Processing Only
+### 2. MediaPipe Processing Only
 
 ```bash
 # Activate virtual environment first
 source .venv/bin/activate
 
-# Process video with OpenPose
-python openpose_integration.py \
+# Process video with MediaPipe
+python mediapipe_integration.py \
     --input gait_video.mp4 \
-    --output openpose_output/ \
+    --output mediapipe_output/ \
     --fps 30.0
 ```
 
@@ -406,13 +399,13 @@ The system automatically generates:
 
 ### Common Issues
 
-#### 1. OpenPose Not Found
+#### 1. MediaPipe Not Found
 ```bash
-# Check OpenPose installation
-which openpose
+# Check MediaPipe installation
+python -c "import mediapipe; print(mediapipe.__version__)"
 
-# Set OpenPose path in configuration
-config['openpose_path'] = '/path/to/openpose'
+# Install MediaPipe if needed
+pip install mediapipe>=0.10.0
 ```
 
 #### 2. CUDA Out of Memory
@@ -460,7 +453,7 @@ config['num_blocks'] = 3
 ## References
 
 1. Bai, S., Kolter, J. Z., & Koltun, V. (2018). An empirical evaluation of generic convolutional and recurrent networks for sequence modeling.
-2. Cao, Z., Hidalgo, G., Simon, T., Wei, S. E., & Sheikh, Y. (2021). OpenPose: Realtime multi-person 2D pose estimation using Part Affinity Fields.
+2. Lugaresi, C., Tang, J., Nash, H., McClanahan, C., Uboweja, E., Hays, M., ... & Grundmann, M. (2019). MediaPipe: A framework for building perception pipelines.
 3. Perry, J., & Burnfield, J. M. (2010). Gait analysis: normal and pathological function.
 
 ## License
@@ -469,7 +462,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- OpenPose team for the pose estimation framework
+- MediaPipe team for the pose estimation framework
 - CMU Perceptual Computing Lab for the BODY_25 model
 - TensorFlow/Keras community for the deep learning framework
 

@@ -36,21 +36,12 @@ pip install -r requirements.txt
 
 REM Create necessary directories
 echo 📁 Creating necessary directories...
-if not exist "dnn_models\pose\body_25" mkdir "dnn_models\pose\body_25"
 if not exist "data" mkdir "data"
 if not exist "results" mkdir "results"
+if not exist "mediapipe_output" mkdir "mediapipe_output"
 
-REM Download BODY_25 model files if they don't exist
-echo 🤖 Checking BODY_25 model files...
-if not exist "dnn_models\pose\body_25\pose_iter_584000.caffemodel" (
-    echo 📥 Downloading BODY_25 model files...
-    cd dnn_models\pose\body_25
-    powershell -Command "Invoke-WebRequest -Uri 'http://posefs1.perception.cs.cmu.edu/OpenPose/models/pose/body_25/pose_iter_584000.caffemodel' -OutFile 'pose_iter_584000.caffemodel'"
-    powershell -Command "Invoke-WebRequest -Uri 'http://posefs1.perception.cs.cmu.edu/OpenPose/models/pose/body_25/pose_deploy.prototxt' -OutFile 'pose_deploy.prototxt'"
-    cd ..\..\..
-) else (
-    echo ✅ BODY_25 model files already exist
-)
+REM MediaPipe models are auto-downloaded on first use
+echo 🤖 MediaPipe models will be auto-downloaded on first use
 
 REM Test the installation
 echo 🧪 Testing installation...
