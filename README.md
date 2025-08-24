@@ -91,16 +91,17 @@ This repository now includes a comprehensive **Temporal Convolutional Network (T
 
 ```
 gait_analysis/
-├── main_gait_analysis.py          # Main pipeline orchestrator
-├── mediapipe_integration.py       # MediaPipe processing module
-├── gait_data_preprocessing.py     # Data preprocessing and feature extraction
-├── tcn_gait_model.py             # Temporal Convolutional Network model
-├── gait_training.py              # Training and evaluation module
-├── test_system.py                # System testing and validation
-├── archive/                      # Legacy scripts (see archive/README.md)
-├── data/                         # Input data directory
-├── results/                      # Output results directory
-└── dnn_models/                   # Pre-trained models
+├── main_gait_analysis.py              # Main pipeline orchestrator
+├── mediapipe_integration.py           # MediaPipe processing module
+├── gait_data_preprocessing.py         # Data preprocessing and feature extraction
+├── tcn_gait_model.py                  # Temporal Convolutional Network model
+├── gait_training.py                   # Training and evaluation module
+├── test_system.py                     # System testing and validation
+├── realtime_pose_visualization.py     # Real-time pose visualization tool
+├── archive/                           # Legacy scripts (see archive/README.md)
+├── data/                              # Input data directory
+├── results/                           # Output results directory
+└── dnn_models/                        # Pre-trained models
 ```
 
 **Quick Start:**
@@ -116,6 +117,34 @@ source .venv/bin/activate
 python main_gait_analysis.py --help
 ```
 
-**For detailed documentation, see:** [README_TCN_Gait_Analysis.md](README_TCN_Gait_Analysis.md)
+## Real-time Pose Visualization
+
+The system includes a real-time pose visualization tool that displays pose keypoints as colored dots with trail effects, similar to the original trail video approach but using MediaPipe.
+
+**Quick Demo:**
+
+```bash
+# Basic visualization with trail effect
+python3 realtime_pose_visualization.py data/sarwesh.mp4
+
+# Show confidence values
+python3 realtime_pose_visualization.py data/sarwesh.mp4 --show-confidence
+
+# Fast performance mode
+python3 realtime_pose_visualization.py data/sarwesh.mp4 --model-complexity 0 --no-trail
+```
+
+**Interactive Controls:**
+
+- **'q'**: Quit visualization
+- **'t'**: Toggle trail effect
+- **'c'**: Toggle connections
+- **'r'**: Reset trail
+- **SPACE**: Pause/resume
+- **'1', '2', '3'**: Change model complexity
+
+**For detailed documentation, see:** [README_RealTime_Visualization.md](README_RealTime_Visualization.md)
+
+**For detailed TCN documentation, see:** [README_TCN_Gait_Analysis.md](README_TCN_Gait_Analysis.md)
 
 **Note:** Legacy scripts from the initial development phase have been moved to the `archive/` directory. See [archive/README.md](archive/README.md) for details about the archived files and migration notes.
