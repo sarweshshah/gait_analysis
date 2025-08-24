@@ -6,6 +6,7 @@ As it turns out, it is as reliable and unique as one's fingerprint and retina sc
 ## Original Basic Gait Analysis System
 
 Following code explore the possibility to do the same by invovling following steps:
+
 - Capturing image sequence
 - Background modeling and Image subtraction
 - Extracting binary silouette image
@@ -17,6 +18,7 @@ Following code explore the possibility to do the same by invovling following ste
 - Indentification and verification
 
 #### Pre-requisites:
+
 - python-3.7
 - mediapipe>=0.10.0
 - opencv-contrib-python-3.4 (optional)
@@ -26,19 +28,23 @@ Pycharm IDE provides an easy interface to setup the environment for the same.
 It automatically downloads the dependencies for the packages.
 
 To check if you have successfully installed opencv, run the following command in the terminal:
+
 ```
 >>> import mediapipe as mp
 >>> print(mp.__version__)
 ```
-If the results are printed out without any errors, congratulations !!! 
+
+If the results are printed out without any errors, congratulations !!!
 You have installed MediaPipe successfully.
 
 #### Step 1 | Capturing video frames:
+
 The first step of the program captures image frames from available video file or webcam (by default) and presents it to the main thread for processing.
 The image is turned to grayscale and fed for processing.
 
 #### Performing background substraction (not required):
-OpenCV provides various [background subtraction algorithms](https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_video/py_bg_subtraction/py_bg_subtraction.html#background-subtraction) for video analysis. 
+
+OpenCV provides various [background subtraction algorithms](https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_video/py_bg_subtraction/py_bg_subtraction.html#background-subtraction) for video analysis.
 
 The most common usage of these algorithms is to extract moving objects from a static background.
 Hence, the `createBackgroundSubtractorMOG2()` method is used for performing the second step of gait analysis.
@@ -50,12 +56,14 @@ Here is the result:
 [more...](https://www.pyimagesearch.com/2015/12/21/increasing-webcam-fps-with-python-and-opencv/)
 
 #### Step 2 | Pose Detection:
+
 The [MediaPipe](https://mediapipe.dev/) library developed by Google provides real-time pose estimation capabilities with pre-trained models to detect the pose of any individual in a picture or video. These models accurately predict the joints inside the picture and even draw individual specific skeletons around each one of them.
 This first layer of information can serve as data points for analysing a complete gait cycle of an individual.
 
 **NOTE:** The background substraction step was removed later as the DNN code does not accept processed pictures as input. Hence that step is not necessary and can be ignored.
 
 #### Step 3 | Trails of Recognised Joints:
+
 If the posiiton of the joints of orthogonal view are traced on screen regularly at an interval of 1 sec, the corresponding snapshot of the movement can provide multiple information.
 The distance between the adjoining points will give the instantenous speed of the joint (Time interval of 1 sec being constant).
 The tangential angle gives the angle at the joint. This can give us useful info like the hip angle, calf angle, etc.
@@ -69,9 +77,10 @@ The algorithm produced the following image for the side view of my walk:
 
 ## Advanced TCN-Based Gait Analysis System
 
-This repository now includes a comprehensive **Temporal Convolutional Network (TCN)** system for markerless gait analysis using MediaPipe pose estimation. 
+This repository now includes a comprehensive **Temporal Convolutional Network (TCN)** system for markerless gait analysis using MediaPipe pose estimation.
 
 **Key Features:**
+
 - MediaPipe pose estimation with foot keypoints
 - Advanced data preprocessing with gap-filling and filtering
 - TCN architecture for temporal sequence modeling
@@ -79,6 +88,7 @@ This repository now includes a comprehensive **Temporal Convolutional Network (T
 - Comprehensive evaluation metrics
 
 **Project Structure:**
+
 ```
 gait_analysis/
 ├── main_gait_analysis.py          # Main pipeline orchestrator
@@ -94,6 +104,7 @@ gait_analysis/
 ```
 
 **Quick Start:**
+
 ```bash
 # Setup environment
 ./setup_environment.sh  # macOS/Linux
