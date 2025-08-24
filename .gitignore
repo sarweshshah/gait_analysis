@@ -6,6 +6,7 @@ ENV/
 
 # IDE
 .idea
+.vscode
 
 # Model files
 *.prototxt
