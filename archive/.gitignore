@@ -1,0 +1,43 @@
+# Archive folder gitignore
+# =======================
+
+# Large model files (should be downloaded separately)
+dnn_models/pose/coco/*.caffemodel
+dnn_models/object_detection/*.caffemodel
+
+# Video files (user data)
+data/*.mp4
+data/*.avi
+data/*.mov
+data/*.mkv
+data/*.wmv
+
+# Output files
+results/
+*.avi
+*.mp4
+*.mov
+*.gif
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

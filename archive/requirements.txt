@@ -1,0 +1,20 @@
+# Requirements for Legacy OpenPose-based Gait Analysis Scripts
+# ===========================================================
+
+# Core dependencies
+opencv-python==4.5.5.64
+opencv-contrib-python==4.5.5.64
+numpy==1.21.6
+imutils==0.5.4
+
+# Additional dependencies for video processing
+scipy==1.7.3
+matplotlib==3.5.3
+seaborn==0.11.2
+
+# Optional: For better performance (GPU support)
+# opencv-python-gpu==4.5.5.64  # Uncomment if you have CUDA support
+
+# Development dependencies (optional)
+# jupyter==1.0.0
+# ipython==7.34.0
