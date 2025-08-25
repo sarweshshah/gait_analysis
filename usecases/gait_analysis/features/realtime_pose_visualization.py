@@ -105,7 +105,7 @@ class RealTimePoseVisualizer:
         self.current_fps = 0
     
     def process_video(self, video_path: str, show_trail: bool = True, trail_alpha: float = 0.3, 
-                     show_connections: bool = True, show_confidence: bool = False):
+                     show_connections: bool = True, show_confidence: bool = False, loop_video: bool = False):
         """
         Process video and display pose keypoints in real-time.
         
@@ -115,6 +115,7 @@ class RealTimePoseVisualizer:
             trail_alpha: Alpha value for trail effect (0.0 to 1.0)
             show_connections: Whether to show connections between keypoints
             show_confidence: Whether to show confidence values
+            loop_video: Whether to loop the video playback
         """
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
@@ -149,8 +150,15 @@ class RealTimePoseVisualizer:
             if not paused:
                 ret, frame = cap.read()
                 if not ret:
-                    print("\nEnd of video reached")
-                    break
+                    if loop_video:
+                        print("\nEnd of video reached - restarting...")
+                        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset to beginning
+                        frame_count = 0
+                        self.keypoint_history.clear()  # Clear trail history for clean restart
+                        continue
+                    else:
+                        print("\nEnd of video reached")
+                        break
                 
                 frame_count += 1
                 

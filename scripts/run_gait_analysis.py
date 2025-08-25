@@ -65,6 +65,11 @@ Examples:
         help="Run pose detection with real-time visualization"
     )
     parser.add_argument(
+        "--loop", 
+        action="store_true",
+        help="Loop the visualization video playback (default: play once)"
+    )
+    parser.add_argument(
         "--log-level", 
         type=str, 
         default="INFO",
@@ -86,6 +91,7 @@ Examples:
         # Update config with command line arguments
         config["input_file"] = args.input
         config["output_dir"] = args.output
+        config["loop_video"] = args.loop
         
         # Handle feature toggles (pose detection is always enabled)
         if args.pose_detection_only:

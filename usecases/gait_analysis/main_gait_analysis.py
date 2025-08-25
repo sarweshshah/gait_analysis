@@ -312,7 +312,10 @@ class GaitAnalysisPipeline:
                 # Pose detection + real-time visualization
                 if video_paths:
                     logger.info(f"Starting real-time visualization for: {video_paths[0]}")
-                    self.visualizer.process_video(video_paths[0])
+                    self.visualizer.process_video(
+                        video_path=video_paths[0],
+                        loop_video=self.config.get('loop_video', False)
+                    )
                     return {"visualization_completed": True}
                 
             else:
