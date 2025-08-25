@@ -1,0 +1,30 @@
+{
+  "mediapipe": {
+    "model_complexity": 1,
+    "min_detection_confidence": 0.5,
+    "min_tracking_confidence": 0.5,
+    "fps": 30.0
+  },
+  "preprocessing": {
+    "confidence_threshold": 0.3,
+    "filter_cutoff": 6.0,
+    "filter_order": 4,
+    "window_size": 30,
+    "overlap": 0.5
+  },
+  "training": {
+    "num_classes": 4,
+    "num_filters": 64,
+    "kernel_size": 3,
+    "dilation_rate": 2,
+    "dropout_rate": 0.2,
+    "learning_rate": 0.001,
+    "batch_size": 32,
+    "epochs": 100
+  },
+  "paths": {
+    "data_dir": "data",
+    "results_dir": "results",
+    "models_dir": "data/models"
+  }
+}

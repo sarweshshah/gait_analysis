@@ -24,7 +24,7 @@ def test_mediapipe_import():
 def test_mediapipe_processor():
     """Test MediaPipe processor initialization."""
     try:
-        from mediapipe_integration import MediaPipeProcessor
+        from core.mediapipe_integration import MediaPipeProcessor
         
         # Create processor
         processor = MediaPipeProcessor(

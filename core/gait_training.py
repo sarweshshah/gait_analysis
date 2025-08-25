@@ -22,8 +22,8 @@ import os
 from datetime import datetime
 import json
 
-from gait_data_preprocessing import GaitDataPreprocessor
-from tcn_gait_model import create_gait_tcn_model, compile_gait_model
+from .gait_data_preprocessing import GaitDataPreprocessor
+from .tcn_gait_model import create_gait_tcn_model, compile_gait_model
 
 logger = logging.getLogger(__name__)
 

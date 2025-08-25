@@ -21,10 +21,10 @@ import numpy as np
 import json
 
 # Import our custom modules
-from mediapipe_integration import MediaPipeProcessor
-from gait_data_preprocessing import GaitDataPreprocessor
-from tcn_gait_model import create_gait_tcn_model, compile_gait_model
-from gait_training import GaitTrainer, GaitMetrics
+from core.mediapipe_integration import MediaPipeProcessor
+from core.gait_data_preprocessing import GaitDataPreprocessor
+from core.tcn_gait_model import create_gait_tcn_model, compile_gait_model
+from core.gait_training import GaitTrainer, GaitMetrics
 
 # Configure logging
 logging.basicConfig(
@@ -40,6 +40,7 @@ logger = logging.getLogger(__name__)
 class GaitAnalysisPipeline:
     """
     Complete gait analysis pipeline integrating all components.
+    Supports feature toggles for different analysis modes.
     """
     
     def __init__(self, config: Dict[str, Any]):
@@ -47,23 +48,34 @@ class GaitAnalysisPipeline:
         Initialize the gait analysis pipeline.
         
         Args:
-            config: Configuration dictionary
+            config: Configuration dictionary with feature toggles
         """
         self.config = config
         self.results_dir = config.get('results_dir', 'gait_analysis_results')
+        
+        # Feature toggles (pose detection is always enabled)
+        self.enable_pose_detection = True  # Always enabled - fundamental requirement
+        self.enable_realtime_visualization = config.get('enable_realtime_visualization', False)
+        self.enable_gait_analysis = config.get('enable_gait_analysis', True)
         
         # Create results directory
         os.makedirs(self.results_dir, exist_ok=True)
         
         # Initialize components
-        self.openpose_processor = None
+        self.mediapipe_processor = None
         self.data_preprocessor = None
         self.trainer = None
+        self.visualizer = None
         
         logger.info("Initialized Gait Analysis Pipeline")
+        logger.info(f"Features enabled: Pose Detection=Always, "
+                   f"Real-time Visualization={self.enable_realtime_visualization}, "
+                   f"Gait Analysis={self.enable_gait_analysis}")
     
     def setup_mediapipe(self):
         """Setup MediaPipe processor for pose estimation."""
+        # Pose detection is always enabled - fundamental requirement
+            
         logger.info("Setting up MediaPipe processor...")
         
         self.mediapipe_processor = MediaPipeProcessor(
@@ -75,6 +87,24 @@ class GaitAnalysisPipeline:
         )
         
         logger.info("MediaPipe setup completed successfully")
+        return True
+    
+    def setup_visualization(self):
+        """Setup real-time visualization."""
+        if not self.enable_realtime_visualization:
+            logger.info("Real-time visualization disabled, skipping setup")
+            return True
+            
+        logger.info("Setting up real-time visualization...")
+        
+        from .features.realtime_pose_visualization import RealTimePoseVisualizer
+        
+        self.visualizer = RealTimePoseVisualizer(
+            model_complexity=self.config.get('model_complexity', 1),
+            min_detection_confidence=self.config.get('min_detection_confidence', 0.5)
+        )
+        
+        logger.info("Real-time visualization setup completed")
         return True
     
     def setup_data_preprocessing(self):
@@ -242,7 +272,7 @@ class GaitAnalysisPipeline:
     
     def run_complete_pipeline(self, video_paths: List[str], labels: List[int] = None):
         """
-        Run the complete gait analysis pipeline.
+        Run the complete gait analysis pipeline with feature toggles.
         
         Args:
             video_paths: List of video file paths
@@ -251,39 +281,72 @@ class GaitAnalysisPipeline:
         logger.info("Starting complete gait analysis pipeline...")
         
         try:
-            # Step 1: Setup components
+            # Setup components (pose detection is always enabled)
             if not self.setup_mediapipe():
                 raise RuntimeError("MediaPipe setup failed")
             
-            self.setup_data_preprocessing()
-            self.setup_trainer()
+            if self.enable_realtime_visualization:
+                if not self.setup_visualization():
+                    raise RuntimeError("Visualization setup failed")
             
-            # Step 2: Process videos with MediaPipe
-            json_dirs = self.process_videos(video_paths)
+            if self.enable_gait_analysis:
+                self.setup_data_preprocessing()
+                self.setup_trainer()
             
-            if not json_dirs:
-                raise RuntimeError("No videos were successfully processed")
+            # Run based on enabled features (pose detection is always enabled)
+            if self.enable_gait_analysis:
+                # Full pipeline: pose detection + gait analysis
+                json_dirs = self.process_videos(video_paths)
+                
+                if not json_dirs:
+                    raise RuntimeError("No videos were successfully processed")
+                
+                features, labels = self.prepare_training_data(json_dirs, labels)
+                cv_results = self.train_model(features, labels)
+                self.evaluate_results(cv_results)
+                
+                logger.info("Complete gait analysis pipeline finished successfully!")
+                return cv_results
+                
+            elif self.enable_realtime_visualization:
+                # Pose detection + real-time visualization
+                if video_paths:
+                    logger.info(f"Starting real-time visualization for: {video_paths[0]}")
+                    self.visualizer.process_video(video_paths[0])
+                    return {"visualization_completed": True}
+                
+            else:
+                # Pose detection only
+                json_dirs = self.process_videos(video_paths)
+                logger.info("Pose detection completed successfully!")
+                return {"pose_detection_completed": True, "json_dirs": json_dirs}
             
-            # Step 3: Prepare training data
-            features, labels = self.prepare_training_data(json_dirs, labels)
-            
-            # Step 4: Train model
-            cv_results = self.train_model(features, labels)
-            
-            # Step 5: Evaluate results
-            self.evaluate_results(cv_results)
-            
-            logger.info("Complete gait analysis pipeline finished successfully!")
-            
-            return cv_results
+            logger.info("Pipeline completed successfully!")
+            return {"pipeline_completed": True}
             
         except Exception as e:
             logger.error(f"Pipeline failed: {e}")
             raise
+    
+    def run_pose_detection_only(self, video_paths: List[str]):
+        """Run only pose detection without gait analysis."""
+        self.enable_gait_analysis = False
+        self.enable_realtime_visualization = False
+        return self.run_complete_pipeline(video_paths)
+    
+    def run_with_visualization(self, video_path: str):
+        """Run pose detection with real-time visualization."""
+        self.enable_gait_analysis = False
+        self.enable_realtime_visualization = True
+        return self.run_complete_pipeline([video_path])
 
 def create_default_config() -> Dict[str, Any]:
     """Create default configuration for gait analysis."""
     return {
+        # Feature toggles (pose detection is always enabled)
+        'enable_realtime_visualization': False,
+        'enable_gait_analysis': True,
+        
         # MediaPipe settings
         'mediapipe_output_dir': 'mediapipe_output',
         'fps': 30.0,
@@ -331,6 +394,16 @@ def main():
     parser.add_argument('--output', '-o', default='gait_analysis_results',
                        help='Output directory for results')
     
+    # Feature toggle arguments
+    parser.add_argument('--pose-detection-only', action='store_true',
+                       help='Run only pose detection without gait analysis')
+    parser.add_argument('--with-visualization', action='store_true',
+                       help='Run pose detection with real-time visualization')
+    parser.add_argument('--enable-visualization', action='store_true',
+                       help='Enable real-time visualization feature')
+    parser.add_argument('--enable-gait-analysis', action='store_true', default=True,
+                       help='Enable gait analysis feature')
+    
     args = parser.parse_args()
     
     # Load configuration
@@ -343,6 +416,18 @@ def main():
     # Update config with command line arguments
     config['task_type'] = args.task
     config['results_dir'] = args.output
+    
+    # Handle feature toggles (pose detection is always enabled)
+    if args.pose_detection_only:
+        config['enable_realtime_visualization'] = False
+        config['enable_gait_analysis'] = False
+    elif args.with_visualization:
+        config['enable_realtime_visualization'] = True
+        config['enable_gait_analysis'] = False
+    else:
+        # Use individual feature toggles
+        config['enable_realtime_visualization'] = args.enable_visualization
+        config['enable_gait_analysis'] = args.enable_gait_analysis
     
     # Validate inputs
     if not all(os.path.exists(video) for video in args.videos):

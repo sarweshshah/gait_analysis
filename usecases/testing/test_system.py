@@ -24,14 +24,14 @@ def test_imports():
     logger.info("Testing module imports...")
     
     try:
-        from mediapipe_integration import MediaPipeProcessor
+        from core.mediapipe_integration import MediaPipeProcessor
         logger.info("✓ MediaPipe integration module imported successfully")
     except ImportError as e:
         logger.error(f"✗ Failed to import MediaPipe integration: {e}")
         return False
     
     try:
-        from gait_data_preprocessing import GaitDataPreprocessor
+        from core.gait_data_preprocessing import GaitDataPreprocessor
         logger.info("✓ Data preprocessing module imported successfully")
     except ImportError as e:
         logger.error(f"✗ Failed to import data preprocessing: {e}")
@@ -48,21 +48,21 @@ def test_imports():
     
     if tf_available:
         try:
-            from tcn_gait_model import create_gait_tcn_model, compile_gait_model
+            from core.tcn_gait_model import create_gait_tcn_model, compile_gait_model
             logger.info("✓ TCN model module imported successfully")
         except ImportError as e:
             logger.error(f"✗ Failed to import TCN model: {e}")
             return False
         
         try:
-            from gait_training import GaitTrainer, GaitMetrics
+            from core.gait_training import GaitTrainer, GaitMetrics
             logger.info("✓ Training module imported successfully")
         except ImportError as e:
             logger.error(f"✗ Failed to import training module: {e}")
             return False
     
     try:
-        from main_gait_analysis import GaitAnalysisPipeline, create_default_config
+        from usecases.gait_analysis.main_gait_analysis import GaitAnalysisPipeline, create_default_config
         logger.info("✓ Main pipeline module imported successfully")
     except ImportError as e:
         if "tensorflow" in str(e).lower():
@@ -80,7 +80,7 @@ def test_data_preprocessing():
     
     try:
         # Import the class
-        from gait_data_preprocessing import GaitDataPreprocessor
+        from core.gait_data_preprocessing import GaitDataPreprocessor
         
         # Create preprocessor
         preprocessor = GaitDataPreprocessor(
@@ -146,7 +146,7 @@ def test_tcn_model():
     
     try:
         # Import the functions
-        from tcn_gait_model import create_gait_tcn_model, compile_gait_model
+        from core.tcn_gait_model import create_gait_tcn_model, compile_gait_model
         
         # Test phase detection model
         input_shape = (30, 50)  # 30 frames, 50 features
@@ -196,8 +196,8 @@ def test_training_pipeline():
     
     try:
         # Import the classes
-        from gait_data_preprocessing import GaitDataPreprocessor
-        from gait_training import GaitTrainer
+        from core.gait_data_preprocessing import GaitDataPreprocessor
+        from core.gait_training import GaitTrainer
         
         # Create preprocessor
         preprocessor = GaitDataPreprocessor(
@@ -255,7 +255,7 @@ def test_mediapipe_integration():
     
     try:
         # Import the class
-        from mediapipe_integration import MediaPipeProcessor
+        from core.mediapipe_integration import MediaPipeProcessor
         
         # Create processor
         processor = MediaPipeProcessor(
@@ -299,7 +299,7 @@ def test_metrics():
     
     try:
         # Import the class
-        from gait_training import GaitMetrics
+        from core.gait_training import GaitMetrics
         
         # Test time deviation MAE
         y_true = np.array([10, 20, 30, 40])
@@ -338,7 +338,7 @@ def test_configuration():
         return True  # Skip test, not fail
     
     try:
-        from main_gait_analysis import create_default_config
+        from usecases.gait_analysis.main_gait_analysis import create_default_config
         
         # Create default config
         config = create_default_config()

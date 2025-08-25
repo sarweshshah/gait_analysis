@@ -14,7 +14,7 @@ import argparse
 import sys
 import os
 from pathlib import Path
-from mediapipe_integration import MediaPipeProcessor
+from core.mediapipe_integration import MediaPipeProcessor
 
 def main():
     """Main function for command-line execution."""
