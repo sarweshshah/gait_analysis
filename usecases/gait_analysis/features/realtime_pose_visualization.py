@@ -303,7 +303,7 @@ class RealTimePoseVisualizer:
                 color = self.colors[i] if i < len(self.colors) else (255, 255, 255)
                 
                 # Adjust circle size based on confidence
-                radius = int(3 + conf * 3)
+                radius = int(1 + conf * 3)
                 cv2.circle(frame, (x, y), radius, color, -1, cv2.LINE_AA)
                 # Draw a white border
                 cv2.circle(frame, (x, y), radius, (255, 255, 255), 1, cv2.LINE_AA)
@@ -351,7 +351,7 @@ class RealTimePoseVisualizer:
         
         # Blend trail with current frame
         cv2.addWeighted(trail_frame, alpha, frame, 1 - alpha, 0, frame)
-    
+
     def _draw_info(self, frame: np.ndarray, frame_count: int, total_frames: int, fps: float, 
                   trail_enabled: bool, connections_enabled: bool, show_confidence: bool):
         """Draw information overlay on frame."""
@@ -364,32 +364,78 @@ class RealTimePoseVisualizer:
             self.current_fps = 30 / (current_time - self.fps_start_time)
             self.fps_start_time = current_time
         
-        # Frame counter
-        progress = frame_count / total_frames * 100
-        cv2.putText(frame, f"Frame: {frame_count}/{total_frames} ({progress:.1f}%)", 
-                   (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-        
-        # FPS counter
-        cv2.putText(frame, f"FPS: {self.current_fps:.1f}", 
-                   (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-        
-        # Status indicators
-        y_offset = 90
-        cv2.putText(frame, f"Trail: {'ON' if trail_enabled else 'OFF'}", 
-                   (10, y_offset), cv2.FONT_HERSHEY_SIMPLEX, 0.6, 
-                   (0, 255, 0) if trail_enabled else (0, 0, 255), 2)
-        
-        cv2.putText(frame, f"Connections: {'ON' if connections_enabled else 'OFF'}", 
-                   (10, y_offset + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, 
-                   (0, 255, 0) if connections_enabled else (0, 0, 255), 2)
-        
+        # Create stats panel - calculate height based on content
+        panel_width = 280
+        line_height = 18  # Reduced for 12px text
+        num_lines = 3  # Frame, Time, FPS
+        num_status_lines = 2  # Trail and Connections (Confidence only shows when enabled)
         if show_confidence:
-            cv2.putText(frame, "Confidence: ON", 
-                       (10, y_offset + 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            num_status_lines = 3
+        panel_height = 20 + (num_lines * line_height) + (num_status_lines * line_height)
+        panel_x = width - panel_width - 15
+        panel_y = 15
         
-        # Controls reminder
-        cv2.putText(frame, "q:quit t:trail c:connections r:reset SPACE:pause 1/2/3:complexity", 
-                   (10, height - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+        # Create semi-transparent background
+        overlay = frame.copy()
+        cv2.rectangle(overlay, (panel_x, panel_y), (panel_x + panel_width, panel_y + panel_height), 
+                     (0, 0, 0), -1)
+        cv2.addWeighted(overlay, 0.7, frame, 0.3, 0, frame)
+        
+        # Add border
+        cv2.rectangle(frame, (panel_x, panel_y), (panel_x + panel_width, panel_y + panel_height), 
+                     (60, 60, 60), 1)
+        
+        # --- Text Styling ---
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.5  # Adjusted for 14px text
+        text_color = (255, 255, 255)
+        line_height = 18  # Use the same line_height as defined above
+        status_dot_radius = 4
+        status_on_color = (0, 255, 0)  # Green
+        status_off_color = (0, 0, 255) # Red
+
+        # --- Draw Stats ---
+        y_pos = panel_y + 25
+
+        # Progress and timing
+        progress = (frame_count / total_frames * 100) if total_frames > 0 else 0
+        duration_sec = (total_frames / fps) if fps > 0 else 0
+        current_time_sec = (frame_count / fps) if fps > 0 else 0
+
+        # Non-status stats
+        stats_text = [
+            f"Frame: {frame_count} / {total_frames} ({progress:.1f}%)",
+            f"Time: {current_time_sec:.1f}s / {duration_sec:.1f}s",
+            f"FPS: {self.current_fps:.1f}"
+        ]
+        for line in stats_text:
+            cv2.putText(frame, line, (panel_x + 10, y_pos), font, font_scale, text_color, 1, cv2.LINE_AA)
+            y_pos += line_height
+
+        # Status indicators with colored dots
+        statuses = {
+            "Trail": trail_enabled,
+            "Connections": connections_enabled,
+            "Confidence": show_confidence
+        }
+        for label, is_enabled in statuses.items():
+            if label == "Confidence" and not is_enabled:
+                continue # Don't show confidence if it's off
+
+            color = status_on_color if is_enabled else status_off_color
+            dot_x = panel_x + 15
+            text_x = panel_x + 25
+
+            cv2.circle(frame, (dot_x, y_pos - 5), status_dot_radius, color, -1, cv2.LINE_AA)
+            cv2.putText(frame, label, (text_x, y_pos), font, font_scale, text_color, 1, cv2.LINE_AA)
+            y_pos += line_height
+        
+        # Minimal controls at bottom
+        controls_text = "q:quit | SPACE:pause | t:trail | c:connections"
+        text_size = cv2.getTextSize(controls_text, cv2.FONT_HERSHEY_SIMPLEX, 0.4, 1)[0]
+        cv2.putText(frame, controls_text, 
+                   (width - text_size[0] - 10, height - 10), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 0.4, (180, 180, 180), 1, cv2.LINE_AA)
 
 def main():
     """Main function."""
