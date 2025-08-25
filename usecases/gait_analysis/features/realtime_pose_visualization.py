@@ -38,65 +38,91 @@ class RealTimePoseVisualizer:
             min_tracking_confidence=0.5
         )
         
-        # Define colors for different body parts (BGR format)
+        # Define colors for MediaPipe's 33 landmarks (BGR format)
         self.colors = [
-            (0, 255, 255),    # Nose - Yellow
-            (255, 0, 255),    # Neck - Magenta
-            (0, 255, 0),      # RShoulder - Green
-            (255, 0, 0),      # RElbow - Blue
-            (0, 0, 255),      # RWrist - Red
-            (0, 255, 0),      # LShoulder - Green
-            (255, 0, 0),      # LElbow - Blue
-            (0, 0, 255),      # LWrist - Red
-            (128, 128, 128),  # MidHip - Gray
-            (0, 255, 0),      # RHip - Green
-            (255, 0, 0),      # RKnee - Blue
-            (0, 0, 255),      # RAnkle - Red
-            (0, 255, 0),      # LHip - Green
-            (255, 0, 0),      # LKnee - Blue
-            (0, 0, 255),      # LAnkle - Red
-            (255, 255, 0),    # REye - Cyan
-            (255, 255, 0),    # LEye - Cyan
-            (255, 0, 255),    # REar - Magenta
-            (255, 0, 255),    # LEar - Magenta
-            (0, 255, 255),    # LBigToe - Yellow
-            (0, 255, 255),    # LSmallToe - Yellow
-            (0, 255, 255),    # LHeel - Yellow
-            (0, 255, 255),    # RBigToe - Yellow
-            (0, 255, 255),    # RSmallToe - Yellow
-            (0, 255, 255),    # RHeel - Yellow
+            (0, 255, 255),    # 0: nose - Yellow
+            (255, 0, 255),    # 1: left_eye_inner - Magenta
+            (255, 255, 0),    # 2: left_eye - Cyan
+            (255, 0, 255),    # 3: left_eye_outer - Magenta
+            (255, 0, 255),    # 4: right_eye_inner - Magenta
+            (255, 255, 0),    # 5: right_eye - Cyan
+            (255, 0, 255),    # 6: right_eye_outer - Magenta
+            (255, 0, 255),    # 7: left_ear - Magenta
+            (255, 0, 255),    # 8: right_ear - Magenta
+            (128, 255, 128),  # 9: mouth_left - Light Green
+            (128, 255, 128),  # 10: mouth_right - Light Green
+            (0, 255, 0),      # 11: left_shoulder - Green
+            (0, 255, 0),      # 12: right_shoulder - Green
+            (255, 0, 0),      # 13: left_elbow - Blue
+            (255, 0, 0),      # 14: right_elbow - Blue
+            (0, 0, 255),      # 15: left_wrist - Red
+            (0, 0, 255),      # 16: right_wrist - Red
+            (128, 0, 128),    # 17: left_pinky - Purple
+            (128, 0, 128),    # 18: right_pinky - Purple
+            (255, 128, 0),    # 19: left_index - Orange
+            (255, 128, 0),    # 20: right_index - Orange
+            (0, 128, 255),    # 21: left_thumb - Light Blue
+            (0, 128, 255),    # 22: right_thumb - Light Blue
+            (0, 255, 0),      # 23: left_hip - Green
+            (0, 255, 0),      # 24: right_hip - Green
+            (255, 0, 0),      # 25: left_knee - Blue
+            (255, 0, 0),      # 26: right_knee - Blue
+            (0, 0, 255),      # 27: left_ankle - Red
+            (0, 0, 255),      # 28: right_ankle - Red
+            (0, 255, 255),    # 29: left_heel - Yellow
+            (0, 255, 255),    # 30: right_heel - Yellow
+            (255, 255, 0),    # 31: left_foot_index - Cyan
+            (255, 255, 0),    # 32: right_foot_index - Cyan
         ]
         
         # Store keypoint history for trail effect
         self.keypoint_history = []
         self.max_history = 30  # Number of frames to keep in history
         
-        # Body connections for drawing lines
+        # Body connections for drawing lines (MediaPipe landmark indices)
         self.connections = [
-            (1, 2),   # Neck to RShoulder
-            (1, 5),   # Neck to LShoulder
-            (2, 3),   # RShoulder to RElbow
-            (3, 4),   # RElbow to RWrist
-            (5, 6),   # LShoulder to LElbow
-            (6, 7),   # LElbow to LWrist
-            (1, 8),   # Neck to MidHip
-            (8, 9),   # MidHip to RHip
-            (9, 10),  # RHip to RKnee
-            (10, 11), # RKnee to RAnkle
-            (8, 12),  # MidHip to LHip
-            (12, 13), # LHip to LKnee
-            (13, 14), # LKnee to LAnkle
-            (0, 1),   # Nose to Neck
-            (0, 15),  # Nose to REye
-            (0, 16),  # Nose to LEye
-            (15, 17), # REye to REar
-            (16, 18), # LEye to LEar
-            (11, 19), # RAnkle to RBigToe
-            (11, 20), # RAnkle to RSmallToe
-            (11, 21), # RAnkle to RHeel
-            (14, 22), # LAnkle to LBigToe
-            (14, 23), # LAnkle to LSmallToe
-            (14, 24), # LAnkle to LHeel
+            # Face connections
+            (0, 1),   # nose to left_eye_inner
+            (0, 4),   # nose to right_eye_inner
+            (1, 2),   # left_eye_inner to left_eye
+            (2, 3),   # left_eye to left_eye_outer
+            (4, 5),   # right_eye_inner to right_eye
+            (5, 6),   # right_eye to right_eye_outer
+            (3, 7),   # left_eye_outer to left_ear
+            (6, 8),   # right_eye_outer to right_ear
+            (9, 10),  # mouth_left to mouth_right
+            
+            # Upper body connections
+            (11, 12), # left_shoulder to right_shoulder
+            (11, 13), # left_shoulder to left_elbow
+            (13, 15), # left_elbow to left_wrist
+            (12, 14), # right_shoulder to right_elbow
+            (14, 16), # right_elbow to right_wrist
+            
+            # Hand connections
+            (15, 17), # left_wrist to left_pinky
+            (15, 19), # left_wrist to left_index
+            (15, 21), # left_wrist to left_thumb
+            (16, 18), # right_wrist to right_pinky
+            (16, 20), # right_wrist to right_index
+            (16, 22), # right_wrist to right_thumb
+            
+            # Torso connections
+            (11, 23), # left_shoulder to left_hip
+            (12, 24), # right_shoulder to right_hip
+            (23, 24), # left_hip to right_hip
+            
+            # Lower body connections
+            (23, 25), # left_hip to left_knee
+            (25, 27), # left_knee to left_ankle
+            (24, 26), # right_hip to right_knee
+            (26, 28), # right_knee to right_ankle
+            
+            # Foot connections
+            (27, 29), # left_ankle to left_heel
+            (27, 31), # left_ankle to left_foot_index
+            (28, 30), # right_ankle to right_heel
+            (28, 32), # right_ankle to right_foot_index
         ]
         
         # Performance tracking
