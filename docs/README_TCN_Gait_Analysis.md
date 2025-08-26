@@ -89,7 +89,7 @@ source .venv/bin/activate  # On macOS/Linux
 ### 6. Verify Installation
 
 ```bash
-python test_system.py
+python usecases/testing/test_system.py
 ```
 
 This will run a comprehensive test of all system components.
@@ -245,14 +245,14 @@ cv_results = trainer.train_with_cross_validation(
 source .venv/bin/activate
 
 # Process multiple videos for phase detection
-python main_gait_analysis.py \
+python usecases/gait_analysis/main_gait_analysis.py \
     --videos video1.mp4 video2.mp4 video3.mp4 \
     --labels 0 1 0 \
     --task phase_detection \
     --output results/
 
 # Process single video for event detection
-python main_gait_analysis.py \
+python usecases/gait_analysis/main_gait_analysis.py \
     --videos gait_video.mp4 \
     --task event_detection \
     --output event_results/
@@ -265,7 +265,7 @@ python main_gait_analysis.py \
 source .venv/bin/activate
 
 # Process video with MediaPipe
-python mediapipe_integration.py \
+python scripts/mediapipe_cli.py \
     --input gait_video.mp4 \
     --output mediapipe_output/ \
     --fps 30.0
@@ -296,7 +296,7 @@ Use the configuration:
 # Activate virtual environment first
 source .venv/bin/activate
 
-python main_gait_analysis.py \
+python usecases/gait_analysis/main_gait_analysis.py \
     --videos video.mp4 \
     --config config.json \
     --output custom_results/
@@ -305,7 +305,7 @@ python main_gait_analysis.py \
 ### 4. Programmatic Usage
 
 ```python
-from main_gait_analysis import GaitAnalysisPipeline, create_default_config
+from usecases.gait_analysis.main_gait_analysis import GaitAnalysisPipeline, create_default_config
 
 # Create configuration
 config = create_default_config()

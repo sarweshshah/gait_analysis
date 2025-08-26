@@ -91,17 +91,40 @@ This repository now includes a comprehensive **Temporal Convolutional Network (T
 
 ```
 gait_analysis/
-├── main_gait_analysis.py              # Main pipeline orchestrator
-├── mediapipe_integration.py           # MediaPipe processing module
-├── gait_data_preprocessing.py         # Data preprocessing and feature extraction
-├── tcn_gait_model.py                  # Temporal Convolutional Network model
-├── gait_training.py                   # Training and evaluation module
-├── test_system.py                     # System testing and validation
-├── realtime_pose_visualization.py     # Real-time pose visualization tool
-├── archive/                           # Legacy scripts (see archive/README.md)
-├── data/                              # Input data directory
-├── results/                           # Output results directory
-└── dnn_models/                        # Pre-trained models
+├── core/                                       # Core system modules
+│   ├── utils/                                  # Utility modules
+│   │   ├── config.py                           # Configuration management
+│   │   └── logging_config.py                   # Logging configuration
+│   ├── gait_data_preprocessing.py              # Data preprocessing and feature extraction
+│   ├── gait_training.py                        # Training and evaluation module
+│   ├── mediapipe_integration.py                # MediaPipe processing module
+│   └── tcn_gait_model.py                       # Temporal Convolutional Network model
+├── usecases/                                   # Use case implementations
+│   ├── gait_analysis/                          # Main gait analysis use case
+│   │   ├── features/                           # Feature-specific implementations
+│   │   │   └── realtime_pose_visualization.py  # Real-time visualization
+│   │   └── main_gait_analysis.py               # Main pipeline orchestrator
+│   └── testing/                                # Testing and validation
+│       ├── test_mediapipe_simple.py            # Simple MediaPipe tests
+│       └── test_system.py                      # System testing and validation
+├── scripts/                                    # Utility scripts
+│   ├── mediapipe_cli.py                        # MediaPipe CLI tool
+│   └── run_gait_analysis.py                    # Gait analysis runner
+├── configs/                                    # Configuration files
+│   ├── default.json                            # Default configuration
+│   └── gait_analysis.json                      # Gait analysis specific config
+├── docs/                                       # Documentation
+│   ├── README_RealTime_Visualization.md        # Real-time visualization docs
+│   └── README_TCN_Gait_Analysis.md             # TCN system documentation
+├── archive/                                    # Legacy scripts (see archive/README.md)
+├── data/                                       # Input data directory
+│   ├── models/                                 # Trained models
+│   ├── processed/                              # Processed data
+│   ├── raw/                                    # Raw input data
+│   └── sneak/                                  # Additional data
+└── results/                                    # Output results directory
+    ├── gait_analysis/                          # Gait analysis results
+    └── visualizations/                         # Generated visualizations
 ```
 
 **Quick Start:**
@@ -114,7 +137,7 @@ setup_environment.bat   # Windows
 
 # Run analysis
 source .venv/bin/activate
-python main_gait_analysis.py --help
+python usecases/gait_analysis/main_gait_analysis.py --help
 ```
 
 ## Real-time Pose Visualization
@@ -125,13 +148,13 @@ The system includes a real-time pose visualization tool that displays pose keypo
 
 ```bash
 # Basic visualization with trail effect
-python3 realtime_pose_visualization.py data/sarwesh.mp4
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh.mp4
 
 # Show confidence values
-python3 realtime_pose_visualization.py data/sarwesh.mp4 --show-confidence
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh.mp4 --show-confidence
 
 # Fast performance mode
-python3 realtime_pose_visualization.py data/sarwesh.mp4 --model-complexity 0 --no-trail
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh.mp4 --model-complexity 0 --no-trail
 ```
 
 **Interactive Controls:**
@@ -143,8 +166,8 @@ python3 realtime_pose_visualization.py data/sarwesh.mp4 --model-complexity 0 --n
 - **SPACE**: Pause/resume
 - **'1', '2', '3'**: Change model complexity
 
-**For detailed documentation, see:** [README_RealTime_Visualization.md](README_RealTime_Visualization.md)
+**For detailed documentation, see:** [docs/README_RealTime_Visualization.md](docs/README_RealTime_Visualization.md)
 
-**For detailed TCN documentation, see:** [README_TCN_Gait_Analysis.md](README_TCN_Gait_Analysis.md)
+**For detailed TCN documentation, see:** [docs/README_TCN_Gait_Analysis.md](docs/README_TCN_Gait_Analysis.md)
 
 **Note:** Legacy scripts from the initial development phase have been moved to the `archive/` directory. See [archive/README.md](archive/README.md) for details about the archived files and migration notes.
