@@ -25,6 +25,7 @@ from core.mediapipe_integration import MediaPipeProcessor
 from core.gait_data_preprocessing import GaitDataPreprocessor
 from core.tcn_gait_model import create_gait_tcn_model, compile_gait_model
 from core.gait_training import GaitTrainer, GaitMetrics
+from .gait_events import BasicGaitEvents
 
 # Configure logging
 logging.basicConfig(
@@ -66,6 +67,7 @@ class GaitAnalysisPipeline:
         self.data_preprocessor = None
         self.trainer = None
         self.visualizer = None
+        self.events_detector = None
         
         logger.info("Initialized Gait Analysis Pipeline")
         logger.info(f"Features enabled: Pose Detection=Always, "
@@ -120,6 +122,16 @@ class GaitAnalysisPipeline:
         )
         
         logger.info("Data preprocessor setup completed")
+
+    def setup_events_detector(self):
+        """Setup rule-based gait events detector."""
+        logger.info("Setting up gait events detector...")
+        self.events_detector = BasicGaitEvents(
+            fps=self.config.get('fps', 30.0),
+            confidence_threshold=self.config.get('confidence_threshold', 0.3),
+            keypoint_format='body25'  # preprocessor outputs BODY_25 mapping
+        )
+        logger.info("Gait events detector setup completed")
     
     def setup_trainer(self):
         """Setup TCN trainer."""
@@ -174,6 +186,49 @@ class GaitAnalysisPipeline:
         
         logger.info(f"Successfully processed {len(json_dirs)} videos")
         return json_dirs
+
+    def run_event_detection(self, json_dirs: List[str]) -> Dict[str, Any]:
+        """
+        Run rule-based gait events detection on processed MediaPipe outputs.
+        """
+        if self.data_preprocessor is None:
+            self.setup_data_preprocessing()
+        if self.events_detector is None:
+            self.setup_events_detector()
+
+        results: Dict[str, Any] = {"videos": []}
+        for dir_path in json_dirs:
+            try:
+                processed = self.data_preprocessor.process_video_sequence(
+                    json_directory=dir_path,
+                    fps=self.config.get('fps', 30.0)
+                )
+                keypoints_seq = processed['keypoints_sequence'][:, :, :2]  # (n_frames, 25, 2)
+                events = self.events_detector.detect_events(keypoints_seq)
+                metrics = self.events_detector.calculate_gait_metrics(events)
+                results["videos"].append({
+                    "json_dir": dir_path,
+                    "events": events,
+                    "metrics": metrics,
+                    "metadata": processed.get('metadata', {})
+                })
+            except Exception as e:
+                logger.error(f"Event detection failed for {dir_path}: {e}", exc_info=True)
+                results["videos"].append({
+                    "json_dir": dir_path,
+                    "error": str(e)
+                })
+
+        # Save consolidated results
+        out_file = os.path.join(self.results_dir, 'gait_events_results.json')
+        try:
+            with open(out_file, 'w') as f:
+                json.dump(results, f, indent=2)
+            logger.info(f"Gait events results saved to {out_file}")
+        except Exception as e:
+            logger.warning(f"Failed to save gait events results: {e}")
+
+        return results
     
     def prepare_training_data(self, json_dirs: List[str], labels: List[int] = None) -> tuple:
         """
@@ -301,12 +356,18 @@ class GaitAnalysisPipeline:
                 if not json_dirs:
                     raise RuntimeError("No videos were successfully processed")
                 
-                features, labels = self.prepare_training_data(json_dirs, labels)
-                cv_results = self.train_model(features, labels)
-                self.evaluate_results(cv_results)
-                
-                logger.info("Complete gait analysis pipeline finished successfully!")
-                return cv_results
+                # Branch by task type
+                if self.config.get('task_type', 'phase_detection') == 'event_detection':
+                    event_results = self.run_event_detection(json_dirs)
+                    logger.info("Gait event detection completed successfully!")
+                    return event_results
+                else:
+                    features, labels = self.prepare_training_data(json_dirs, labels)
+                    cv_results = self.train_model(features, labels)
+                    self.evaluate_results(cv_results)
+                    
+                    logger.info("Complete gait analysis pipeline finished successfully!")
+                    return cv_results
                 
             elif self.enable_realtime_visualization:
                 # Pose detection + real-time visualization

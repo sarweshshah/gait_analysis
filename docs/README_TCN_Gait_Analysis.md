@@ -325,6 +325,17 @@ results = pipeline.run_complete_pipeline(video_paths, labels)
 print(f"Mean Accuracy: {results['overall_metrics']['mean_accuracy']:.4f}")
 ```
 
+## Conventions
+
+To keep the API clear and simple, the system uses enums for task types and dictionary keys:
+
+- Task types: use `core.constants.TaskType` and `TaskType.DEFAULT`
+- Event dictionaries: use constants such as `core.constants.EventType` and `EventType.HEEL_STRIKE`
+- Sides and labels in results: use constants such as `core.constants.Side` and `Side.LEFT`
+
+Please note that these changes are now reflected in the repository.
+For more details, see the [constants file](core/utils/constants.py) in the repository.
+
 ## Technical Details
 
 ### Receptive Field Calculation
