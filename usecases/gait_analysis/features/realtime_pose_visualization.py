@@ -7,6 +7,10 @@ This script processes a video file and displays pose keypoints as dots
 in real-time, similar to the trail video approach but using MediaPipe.
 """
 
+import os
+# Suppress TensorFlow Lite feedback manager warnings - must be set before importing mediapipe
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 import cv2
 import numpy as np
 import mediapipe as mp
@@ -78,6 +82,11 @@ class RealTimePoseVisualizer:
         # Store keypoint history for trail effect
         self.keypoint_history = []
         self.max_history = 30  # Number of frames to keep in history
+        
+        # Occlusion handling
+        self.previous_keypoints = None
+        self.occlusion_threshold = 0.3
+        self.interpolation_frames = 5  # Max frames to interpolate missing keypoints
         
         # Body connections for drawing lines (MediaPipe landmark indices)
         self.connections = [
@@ -192,6 +201,8 @@ class RealTimePoseVisualizer:
                 keypoints = self._process_frame(frame)
                 
                 if keypoints is not None:
+                    # Handle self-occlusion
+                    keypoints = self._handle_occlusion(keypoints)
                     # Add to history for trail effect
                     if trail_enabled:
                         self.keypoint_history.append(keypoints.copy())
@@ -205,12 +216,12 @@ class RealTimePoseVisualizer:
                     if trail_enabled and len(self.keypoint_history) > 1:
                         self._draw_trail(display_frame, trail_alpha)
                     
-                    # Draw current keypoints
-                    self._draw_keypoints(display_frame, keypoints, show_confidence)
-                    
-                    # Draw connections
+                    # Draw connections first (so they appear behind keypoints)
                     if connections_enabled:
                         self._draw_connections(display_frame, keypoints)
+                    
+                    # Draw current keypoints on top
+                    self._draw_keypoints(display_frame, keypoints, show_confidence)
                     
                     # Add frame info
                     self._draw_info(display_frame, frame_count, total_frames, fps, 
@@ -295,18 +306,113 @@ class RealTimePoseVisualizer:
         
         return keypoints
     
+    def _handle_occlusion(self, keypoints: List[Tuple[int, int, float]]) -> List[Tuple[int, int, float]]:
+        """
+        Handle self-occlusion using temporal smoothing and anatomical constraints.
+        
+        Args:
+            keypoints: Current frame keypoints
+            
+        Returns:
+            Enhanced keypoints with occlusion handling
+        """
+        if self.previous_keypoints is None:
+            self.previous_keypoints = keypoints.copy()
+            return keypoints
+        
+        enhanced_keypoints = []
+        
+        for i, (x, y, conf) in enumerate(keypoints):
+            if conf < self.occlusion_threshold:
+                # Low confidence - likely occluded
+                prev_x, prev_y, prev_conf = self.previous_keypoints[i]
+                
+                # Use temporal smoothing if previous keypoint was confident
+                if prev_conf > 0.5:
+                    # Interpolate position with reduced confidence
+                    enhanced_keypoints.append((prev_x, prev_y, min(prev_conf * 0.7, 0.6)))
+                else:
+                    # Try anatomical estimation
+                    estimated = self._estimate_from_anatomy(i, keypoints)
+                    if estimated:
+                        enhanced_keypoints.append(estimated)
+                    else:
+                        enhanced_keypoints.append((x, y, conf))
+            else:
+                enhanced_keypoints.append((x, y, conf))
+        
+        # Update previous keypoints for next frame
+        self.previous_keypoints = enhanced_keypoints.copy()
+        return enhanced_keypoints
+    
+    def _estimate_from_anatomy(self, joint_idx: int, keypoints: List[Tuple[int, int, float]]) -> Optional[Tuple[int, int, float]]:
+        """
+        Estimate occluded joint position using anatomical constraints.
+        
+        Args:
+            joint_idx: Index of the occluded joint
+            keypoints: Current frame keypoints
+            
+        Returns:
+            Estimated (x, y, confidence) or None if estimation not possible
+        """
+        # Define anatomical relationships for key joints
+        estimations = {
+            # Shoulders - estimate from hips and head
+            11: [(0, 23), 0.3],  # left_shoulder from nose and left_hip
+            12: [(0, 24), 0.3],  # right_shoulder from nose and right_hip
+            
+            # Elbows - estimate from shoulders and wrists
+            13: [(11, 15), 0.5], # left_elbow from left_shoulder and left_wrist
+            14: [(12, 16), 0.5], # right_elbow from right_shoulder and right_wrist
+            
+            # Knees - estimate from hips and ankles
+            25: [(23, 27), 0.5], # left_knee from left_hip and left_ankle
+            26: [(24, 28), 0.5], # right_knee from right_hip and right_ankle
+        }
+        
+        if joint_idx not in estimations:
+            return None
+        
+        (ref1_idx, ref2_idx), ratio = estimations[joint_idx]
+        
+        # Check if reference points are confident
+        if (ref1_idx < len(keypoints) and ref2_idx < len(keypoints) and
+            keypoints[ref1_idx][2] > 0.5 and keypoints[ref2_idx][2] > 0.5):
+            
+            x1, y1, _ = keypoints[ref1_idx]
+            x2, y2, _ = keypoints[ref2_idx]
+            
+            # Interpolate position
+            est_x = int(x1 + ratio * (x2 - x1))
+            est_y = int(y1 + ratio * (y2 - y1))
+            
+            return (est_x, est_y, 0.4)  # Lower confidence for estimated points
+        
+        return None
+    
     def _draw_keypoints(self, frame: np.ndarray, keypoints: List[Tuple[int, int, float]], 
                        show_confidence: bool = False):
         """Draw keypoints as dots on the frame."""
         for i, (x, y, conf) in enumerate(keypoints):
-            if conf > 0.5:  # Only draw confident keypoints
+            if conf > 0.3:  # Draw keypoints with some confidence (lowered for estimated points)
                 color = self.colors[i] if i < len(self.colors) else (255, 255, 255)
                 
                 # Adjust circle size based on confidence
                 radius = int(1 + conf * 3)
-                cv2.circle(frame, (x, y), radius, color, -1, cv2.LINE_AA)
-                # Draw a white border
-                cv2.circle(frame, (x, y), radius, (255, 255, 255), 1, cv2.LINE_AA)
+                
+                # Different visualization for estimated vs detected keypoints
+                if conf <= 0.5:  # Likely estimated/interpolated
+                    # Draw dashed circle for estimated points
+                    cv2.circle(frame, (x, y), radius, color, 1, cv2.LINE_AA)
+                    cv2.circle(frame, (x, y), radius + 1, (255, 255, 255), 1, cv2.LINE_AA)
+                    # Add small cross to indicate estimation
+                    cv2.line(frame, (x-3, y-3), (x+3, y+3), (255, 255, 255), 1)
+                    cv2.line(frame, (x-3, y+3), (x+3, y-3), (255, 255, 255), 1)
+                else:
+                    # Solid circle for detected points
+                    cv2.circle(frame, (x, y), radius, color, -1, cv2.LINE_AA)
+                    cv2.circle(frame, (x, y), radius, (255, 255, 255), 1, cv2.LINE_AA)
                 
                 # Show confidence value if requested
                 if show_confidence:
