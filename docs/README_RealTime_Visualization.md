@@ -34,32 +34,32 @@ A real-time pose visualization system that processes video files and displays po
 
 ```bash
 # Basic visualization with trail effect
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4
 ```
 
 ### Advanced Options
 
 ```bash
 # Show confidence values on keypoints
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4 --show-confidence
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --show-confidence
 
 # No trail effect for clean visualization
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4 --no-trail
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --no-trail
 
 # No connections between keypoints
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4 --no-connections
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --no-connections
 
 # Fast model for better performance
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4 --model-complexity 0
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --model-complexity 0
 
 # Accurate model for better precision
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4 --model-complexity 2
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --model-complexity 2
 
 # Custom trail alpha (0.0 to 1.0)
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4 --trail-alpha 0.5
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --trail-alpha 0.5
 
 # Custom minimum confidence threshold
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4 --min-confidence 0.7
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --min-confidence 0.7
 ```
 
 ### Command Line Arguments
@@ -183,7 +183,7 @@ This visualization system is designed to work with the main gait analysis pipeli
 ### Basic Trail Visualization
 
 ```bash
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4
 ```
 
 Shows pose keypoints with trail effect, perfect for seeing movement patterns.
@@ -191,7 +191,7 @@ Shows pose keypoints with trail effect, perfect for seeing movement patterns.
 ### Performance Mode
 
 ```bash
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4 --model-complexity 0 --no-trail
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --model-complexity 0 --no-trail
 ```
 
 Fast processing without trail effect for quick analysis.
@@ -199,7 +199,7 @@ Fast processing without trail effect for quick analysis.
 ### Analysis Mode
 
 ```bash
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh1.mp4 --model-complexity 2 --show-confidence --no-connections
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --model-complexity 2 --show-confidence --no-connections
 ```
 
 High accuracy with confidence values, no connections for clean keypoint analysis.
@@ -212,8 +212,10 @@ gait_analysis/
 │   └── gait_analysis/
 │       └── features/
 │           └── realtime_pose_visualization.py  # Main visualization script
-├── data/
-│   └── sarwesh1.mp4                            # Example video file
+├── videos/
+│   ├── raw/
+│   │   └── sarwesh1.mp4                        # Example video file
+│   └── sneak/                                  # Sneak gait videos
 ├── docs/
 │   └── README_RealTime_Visualization.md        # This file
 └── .venv/                                      # Virtual environment

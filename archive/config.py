@@ -28,10 +28,10 @@ OBJECT_DETECTION_WEIGHTS_FILE = "dnn_models/object_detection/MobileNetSSD_deploy
 
 # Default video files for each script
 DEFAULT_VIDEOS = {
-    "poseTrailVideo": "data/sarwesh.mp4",
-    "poseDetectVideo": "data/sarwesh.mp4", 
-    "hipsTrailVideo": "data/hydrocephalus.mp4",
-    "poseAndObjectDetectVideo": "data/sarwesh.mp4"
+    "poseTrailVideo": "videos/raw/sarwesh.mp4",
+    "poseDetectVideo": "videos/raw/sarwesh.mp4", 
+    "hipsTrailVideo": "videos/raw/hydrocephalus.mp4",
+    "poseAndObjectDetectVideo": "videos/raw/sarwesh.mp4"
 }
 
 # Video processing settings
@@ -138,7 +138,7 @@ for dir_path in OUTPUT_DIRS.values():
 
 def get_video_path(script_name):
     """Get the default video path for a script."""
-    return DEFAULT_VIDEOS.get(script_name, "data/sample.mp4")
+    return DEFAULT_VIDEOS.get(script_name, "videos/raw/sample.mp4")
 
 def get_resize_width(script_name):
     """Get the resize width for a script."""

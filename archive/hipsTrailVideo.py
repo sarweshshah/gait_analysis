@@ -6,7 +6,7 @@ import imutils
 import numpy as np
 from imutils.video import FileVideoStream
 
-fvs = FileVideoStream('data/hydrocephalus.mp4', queue_size=1024).start()
+fvs = FileVideoStream('videos/raw/hydrocephalus.mp4', queue_size=1024).start()
 time.sleep(1.0)
 
 openposeProtoFile = "dnn_models/pose/coco/pose_deploy_linevec.prototxt"

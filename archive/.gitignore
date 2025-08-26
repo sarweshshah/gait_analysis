@@ -6,10 +6,14 @@ dnn_models/pose/coco/*.caffemodel
 dnn_models/object_detection/*.caffemodel
 
 # Video files (user data)
-data/*.mp4
-data/*.avi
-data/*.mov
-data/*.mkv
+videos/*.mp4
+videos/*.avi
+videos/*.mov
+videos/*.mkv
+videos/**/*.mp4
+videos/**/*.avi
+videos/**/*.mov
+videos/**/*.mkv
 data/*.wmv
 
 # Output files

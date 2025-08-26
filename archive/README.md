@@ -10,7 +10,7 @@ These scripts use OpenPose for pose estimation and provide basic visualization a
   - Real-time pose keypoint detection
   - Trail visualization showing keypoint movement
   - COCO format (18 keypoints)
-- **Input**: Video file (default: `data/sarwesh.mp4`)
+- **Input**: Video file (default: `videos/raw/sarwesh.mp4`)
 - **Output**: Real-time visualization window
 
 ### 2. poseDetectVideo.py
@@ -20,7 +20,7 @@ These scripts use OpenPose for pose estimation and provide basic visualization a
   - Part Affinity Fields (PAF) for limb connections
   - Background subtraction capability
   - Multi-person detection
-- **Input**: Video file (default: `data/sarwesh.mp4`)
+- **Input**: Video file (default: `videos/raw/sarwesh.mp4`)
 - **Output**: Real-time skeleton overlay
 
 ### 3. hipsTrailVideo.py
@@ -29,7 +29,7 @@ These scripts use OpenPose for pose estimation and provide basic visualization a
   - Focused on hip keypoint tracking
   - Trail visualization for hip movement
   - Specialized for gait analysis
-- **Input**: Video file (default: `data/hydrocephalus.mp4`)
+- **Input**: Video file (default: `videos/raw/hydrocephalus.mp4`)
 - **Output**: Real-time hip trail visualization
 
 ### 4. poseAndObjectDetectVideo.py
@@ -38,7 +38,7 @@ These scripts use OpenPose for pose estimation and provide basic visualization a
   - Combined pose estimation and object detection
   - MobileNet SSD for object detection
   - Skeleton overlay with bounding boxes
-- **Input**: Video file (default: `data/sarwesh.mp4`)
+- **Input**: Video file (default: `videos/raw/sarwesh.mp4`)
 - **Output**: Real-time combined visualization
 
 ## Setup Instructions
@@ -150,7 +150,9 @@ archive/
 │   └── object_detection/
 │       ├── MobileNetSSD_deploy.prototxt
 │       └── MobileNetSSD_deploy.caffemodel
-├── data/                       # Input video files
+├── videos/                     # Input video files
+│   ├── raw/                    # Raw video files
+│   └── sneak/                  # Sneak gait videos
 └── results/                    # Output files
 ```
 
@@ -163,7 +165,7 @@ archive/
    - Check that model files are in the correct directories
 
 2. **"Video file not found"**
-   - Place your video files in the `data/` directory
+   - Place your video files in the `videos/raw/` or `videos/sneak/` directory
    - Update the video path in the script or use `--video` parameter
 
 3. **"OpenCV DNN module not available"**

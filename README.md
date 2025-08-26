@@ -119,9 +119,10 @@ gait_analysis/
 ├── archive/                                    # Legacy scripts (see archive/README.md)
 ├── data/                                       # Input data directory
 │   ├── models/                                 # Trained models
-│   ├── processed/                              # Processed data
-│   ├── raw/                                    # Raw input data
-│   └── sneak/                                  # Additional data
+│   └── processed/                              # Processed data
+├── videos/                                     # Video files directory
+│   ├── raw/                                    # Raw video files
+│   └── sneak/                                  # Sneak gait videos
 └── results/                                    # Output results directory
     ├── gait_analysis/                          # Gait analysis results
     └── visualizations/                         # Generated visualizations
@@ -148,13 +149,13 @@ The system includes a real-time pose visualization tool that displays pose keypo
 
 ```bash
 # Basic visualization with trail effect
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh.mp4
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh.mp4
 
 # Show confidence values
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh.mp4 --show-confidence
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh.mp4 --show-confidence
 
 # Fast performance mode
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py data/sarwesh.mp4 --model-complexity 0 --no-trail
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh.mp4 --model-complexity 0 --no-trail
 ```
 
 **Interactive Controls:**

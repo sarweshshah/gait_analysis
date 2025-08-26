@@ -87,6 +87,7 @@ class ConfigManager:
             },
             "paths": {
                 "data_dir": "data",
+                "videos_dir": "videos",
                 "results_dir": "results",
                 "models_dir": "data/models"
             }

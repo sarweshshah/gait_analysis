@@ -6,7 +6,7 @@ import imutils
 import numpy as np
 from imutils.video import FileVideoStream
 
-fvs = FileVideoStream('data/sarwesh.mp4', queue_size=1024).start()  # with bag
+fvs = FileVideoStream('videos/raw/sarwesh.mp4', queue_size=1024).start()  # with bag
 time.sleep(1.0)
 
 kernelSize = 7

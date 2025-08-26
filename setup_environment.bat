@@ -37,6 +37,9 @@ pip install -r requirements.txt
 REM Create necessary directories
 echo 📁 Creating necessary directories...
 if not exist "data" mkdir "data"
+if not exist "videos" mkdir "videos"
+if not exist "videos\raw" mkdir "videos\raw"
+if not exist "videos\sneak" mkdir "videos\sneak"
 if not exist "results" mkdir "results"
 if not exist "mediapipe_output" mkdir "mediapipe_output"
 
@@ -45,7 +48,7 @@ echo 🤖 MediaPipe models will be auto-downloaded on first use
 
 REM Test the installation
 echo 🧪 Testing installation...
-python test_system.py
+python usecases\testing\test_system.py
 
 echo.
 echo 🎉 Environment setup completed successfully!
@@ -55,7 +58,7 @@ echo   .venv\Scripts\activate.bat
 echo.
 echo To run the gait analysis system:
 echo   .venv\Scripts\activate.bat
-echo   python main_gait_analysis.py --help
+echo   python usecases\gait_analysis\main_gait_analysis.py --help
 echo.
 echo For more information, see README_TCN_Gait_Analysis.md
 pause
