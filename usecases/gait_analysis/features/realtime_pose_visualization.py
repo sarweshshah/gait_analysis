@@ -26,10 +26,12 @@ class RealTimePoseVisualizer:
         Initialize the real-time pose visualizer.
         
         Args:
-            model_complexity: MediaPipe model complexity (0, 1, or 2)
+            model_complexity: MediaPipe model complexity (1=fast, 2=balanced, 3=accurate)
+                             Will be mapped to MediaPipe's 0-2 range internally
             min_detection_confidence: Minimum confidence for pose detection
         """
-        self.model_complexity = model_complexity
+        # Map 1-3 input to 0-2 for MediaPipe
+        self.model_complexity = max(0, min(2, model_complexity - 1))
         self.min_detection_confidence = min_detection_confidence
         
         # Initialize MediaPipe Pose
@@ -262,16 +264,23 @@ class RealTimePoseVisualizer:
         self.pose.close()
     
     def _change_model_complexity(self, complexity: int):
-        """Change MediaPipe model complexity on the fly."""
+        """Change MediaPipe model complexity on the fly.
+        
+        Args:
+            complexity: Input complexity level (1=fast, 2=balanced, 3=accurate)
+        """
+        # Map 1-3 input to 0-2 for MediaPipe
+        mapped_complexity = max(0, min(2, complexity - 1))
         self.pose.close()
         self.pose = self.mp_pose.Pose(
             static_image_mode=False,
-            model_complexity=complexity,
+            model_complexity=mapped_complexity,
             smooth_landmarks=True,
             min_detection_confidence=self.min_detection_confidence,
             min_tracking_confidence=0.5
         )
-        print(f"Model complexity changed to: {complexity}")
+        # Show the original input complexity level to user
+        print(f"Model complexity changed to: {complexity} (mapped to MediaPipe level {mapped_complexity})")
     
     def _process_frame(self, frame: np.ndarray) -> Optional[List[Tuple[int, int, float]]]:
         """
