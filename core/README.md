@@ -145,6 +145,35 @@ from core.tcn_gait_model import TCNGaitModel
 from core.gait_training import GaitTrainer
 ```
 
+## Conventions
+
+To keep the core APIs simple and readable, the system uses plain string literals for simple identifiers:
+
+- Task types: 'phase_detection', 'event_detection'
+- Event dictionary keys: 'heel_strikes', 'toe_offs', 'flat_foots', 'heel_offs'
+- Sides and labels: 'left', 'right', etc.
+
+Only core domain names like event names and sides are kept as centralized constants in `core/utils/constants.py` to avoid typos. Do not introduce constants for simple dictionary keys or task type strings.
+
+## Core Constants
+
+Shared domain names and labels are defined in `core/utils/constants.py`:
+
+```python
+from core.utils.constants import (
+    SIDES, LEFT, RIGHT,
+    EVENT_TYPES, HEEL_STRIKE, TOE_OFF,
+    PHASE_LABELS_4, get_phase_labels, TASK_TYPES
+)
+
+print(SIDES)               # ['left', 'right']
+print(EVENT_TYPES)         # ['heel_strike', 'toe_off'] (default basic set)
+print(get_phase_labels(4)) # ['stance_left', 'swing_left', 'stance_right', 'swing_right']
+print(TASK_TYPES)          # ['phase_detection', 'event_detection']
+```
+
+Note: Dictionary keys and task types should be used as string literals in code. Constants here are for event names, sides, and label sets.
+
 ## Configuration
 
 Core modules use configuration files from the `configs/` directory:

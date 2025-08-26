@@ -93,6 +93,7 @@ This repository now includes a comprehensive **Temporal Convolutional Network (T
 gait_analysis/
 ├── core/                                       # Core system modules
 │   ├── utils/                                  # Utility modules
+│   │   ├── constants.py                        # Core constants
 │   │   ├── config.py                           # Configuration management
 │   │   └── logging_config.py                   # Logging configuration
 │   ├── gait_data_preprocessing.py              # Data preprocessing and feature extraction
@@ -103,6 +104,7 @@ gait_analysis/
 │   ├── gait_analysis/                          # Main gait analysis use case
 │   │   ├── features/                           # Feature-specific implementations
 │   │   │   └── realtime_pose_visualization.py  # Real-time visualization
+│   │   ├── utils.py                            # Utilities for quick analysis
 │   │   └── main_gait_analysis.py               # Main pipeline orchestrator
 │   └── testing/                                # Testing and validation
 │       ├── test_mediapipe_simple.py            # Simple MediaPipe tests
