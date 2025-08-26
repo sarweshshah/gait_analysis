@@ -392,8 +392,8 @@ gait_analysis_results/
 ├── classification_report.txt    # Detailed classification report
 ├── confusion_matrix.png         # Confusion matrix visualization
 ├── training_curves.png          # Training curves plot
-├── model_fold_1.h5             # Best model from fold 1
-├── model_fold_2.h5             # Best model from fold 2
+├── model_fold_1.h5              # Best model from fold 1
+├── model_fold_2.h5              # Best model from fold 2
 └── detailed_results.json        # Complete results summary
 ```
 
