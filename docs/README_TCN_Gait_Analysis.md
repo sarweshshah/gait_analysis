@@ -63,15 +63,15 @@ source .venv/bin/activate  # On macOS/Linux
 
 **Install Dependencies:**
 ```bash
-pip install --upgrade pip
-pip install -r requirements.txt
+pip3 install --upgrade pip
+pip3 install -r requirements.txt
 ```
 
 ### 3. Install MediaPipe
 
 Install MediaPipe using pip:
 ```bash
-pip install mediapipe>=0.10.0
+pip3 install mediapipe>=0.10.0
 ```
 
 ### 4. MediaPipe Models (Auto-downloaded)
@@ -89,7 +89,7 @@ source .venv/bin/activate  # On macOS/Linux
 ### 6. Verify Installation
 
 ```bash
-python usecases/testing/test_system.py
+python3 usecases/testing/test_system.py
 ```
 
 This will run a comprehensive test of all system components.
@@ -245,14 +245,14 @@ cv_results = trainer.train_with_cross_validation(
 source .venv/bin/activate
 
 # Process multiple videos for phase detection
-python usecases/gait_analysis/main_gait_analysis.py \
+python3 usecases/gait_analysis/main_gait_analysis.py \
     --videos video1.mp4 video2.mp4 video3.mp4 \
     --labels 0 1 0 \
     --task phase_detection \
     --output results/
 
 # Process single video for event detection
-python usecases/gait_analysis/main_gait_analysis.py \
+python3 usecases/gait_analysis/main_gait_analysis.py \
     --videos gait_video.mp4 \
     --task event_detection \
     --output event_results/
@@ -265,7 +265,7 @@ python usecases/gait_analysis/main_gait_analysis.py \
 source .venv/bin/activate
 
 # Process video with MediaPipe
-python scripts/mediapipe_cli.py \
+python3 scripts/mediapipe_cli.py \
     --input gait_video.mp4 \
     --output mediapipe_output/ \
     --fps 30.0
@@ -296,7 +296,7 @@ Use the configuration:
 # Activate virtual environment first
 source .venv/bin/activate
 
-python usecases/gait_analysis/main_gait_analysis.py \
+python3 usecases/gait_analysis/main_gait_analysis.py \
     --videos video.mp4 \
     --config config.json \
     --output custom_results/
@@ -413,10 +413,10 @@ The system automatically generates:
 #### 1. MediaPipe Not Found
 ```bash
 # Check MediaPipe installation
-python -c "import mediapipe; print(mediapipe.__version__)"
+python3 -c "import mediapipe; print(mediapipe.__version__)"
 
 # Install MediaPipe if needed
-pip install mediapipe>=0.10.0
+pip3 install mediapipe>=0.10.0
 ```
 
 #### 2. CUDA Out of Memory

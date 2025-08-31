@@ -1,4 +1,4 @@
-# Gait Analysis using MediaPipe on a webcam/video
+# Gait Analysis on a webcam/video
 
 Gait analysis is analysing an individual by their walking pattern and turns out to be a reliable indentification source.
 As it turns out, it is as reliable and unique as one's fingerprint and retina scan.
@@ -140,7 +140,7 @@ setup_environment.bat   # Windows
 
 # Run analysis
 source .venv/bin/activate
-python usecases/gait_analysis/main_gait_analysis.py --help
+python3 usecases/gait_analysis/main_gait_analysis.py --help
 ```
 
 ## Real-time Pose Visualization

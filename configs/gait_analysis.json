@@ -1,9 +1,19 @@
 {
+  "pose_model": "mediapipe",
+  "pose_output_dir": "pose_output",
+  "fps": 30.0,
   "mediapipe": {
+    "output_dir": "mediapipe_output",
     "model_complexity": 1,
     "min_detection_confidence": 0.5,
-    "min_tracking_confidence": 0.5,
-    "fps": 30.0
+    "min_tracking_confidence": 0.5
+  },
+  "metrabs": {
+    "output_dir": "metrabs_output",
+    "model_name": "metrabs_4x_512",
+    "device": "auto",
+    "batch_size": 1,
+    "num_aug": 1
   },
   "preprocessing": {
     "confidence_threshold": 0.3,

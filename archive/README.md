@@ -69,7 +69,7 @@ setup_environment.bat
 
 1. **Install Python dependencies:**
    ```bash
-   pip install -r requirements.txt
+   pip3 install -r requirements.txt
    ```
 
 2. **Download model files:**
@@ -96,29 +96,29 @@ setup_environment.bat
 
 ```bash
 # List available scripts
-python run_scripts.py --list
+python3 run_scripts.py --list
 
 # Check dependencies and model files
-python run_scripts.py --check
+python3 run_scripts.py --check
 
 # Run a specific script
-python run_scripts.py poseTrailVideo
+python3 run_scripts.py poseTrailVideo
 
 # Run with custom video file
-python run_scripts.py poseDetectVideo --video path/to/your/video.mp4
+python3 run_scripts.py poseDetectVideo --video path/to/your/video.mp4
 
 # Run with custom output directory
-python run_scripts.py hipsTrailVideo --output custom_results
+python3 run_scripts.py hipsTrailVideo --output custom_results
 ```
 
 ### Direct Script Execution
 
 ```bash
 # Run individual scripts
-python poseTrailVideo.py
-python poseDetectVideo.py
-python hipsTrailVideo.py
-python poseAndObjectDetectVideo.py
+python3 poseTrailVideo.py
+python3 poseDetectVideo.py
+python3 hipsTrailVideo.py
+python3 poseAndObjectDetectVideo.py
 ```
 
 ### Configuration

@@ -21,7 +21,7 @@ import numpy as np
 import json
 
 # Import our custom modules
-from core.mediapipe_integration import MediaPipeProcessor
+from core.pose_processor_manager import UnifiedPoseProcessor, PoseProcessorManager
 from core.gait_data_preprocessing import GaitDataPreprocessor
 from core.tcn_gait_model import create_gait_tcn_model, compile_gait_model
 from core.gait_training import GaitTrainer, GaitMetrics
@@ -63,7 +63,7 @@ class GaitAnalysisPipeline:
         os.makedirs(self.results_dir, exist_ok=True)
         
         # Initialize components
-        self.mediapipe_processor = None
+        self.pose_processor = None
         self.data_preprocessor = None
         self.trainer = None
         self.visualizer = None
@@ -74,21 +74,46 @@ class GaitAnalysisPipeline:
                    f"Real-time Visualization={self.enable_realtime_visualization}, "
                    f"Gait Analysis={self.enable_gait_analysis}")
     
-    def setup_mediapipe(self):
-        """Setup MediaPipe processor for pose estimation."""
+    def setup_pose_processor(self):
+        """Setup pose processor for pose estimation."""
         # Pose detection is always enabled - fundamental requirement
-            
-        logger.info("Setting up MediaPipe processor...")
         
-        self.mediapipe_processor = MediaPipeProcessor(
-            output_dir=self.config.get('mediapipe_output_dir', 'mediapipe_output'),
-            fps=self.config.get('fps', 30.0),
-            model_complexity=self.config.get('model_complexity', 1),
-            min_detection_confidence=self.config.get('min_detection_confidence', 0.5),
-            min_tracking_confidence=self.config.get('min_tracking_confidence', 0.5)
+        pose_model = self.config.get('pose_model', 'mediapipe')
+        logger.info(f"Setting up {pose_model} processor...")
+        
+        # Get model-specific configuration
+        pose_config = self.config.get('pose_config', {})
+        
+        if pose_model == 'mediapipe':
+            # MediaPipe specific configuration
+            processor_kwargs = {
+                'output_dir': self.config.get('mediapipe_output_dir', 'mediapipe_output'),
+                'fps': self.config.get('fps', 30.0),
+                'model_complexity': self.config.get('model_complexity', 1),
+                'min_detection_confidence': self.config.get('min_detection_confidence', 0.5),
+                'min_tracking_confidence': self.config.get('min_tracking_confidence', 0.5)
+            }
+        elif pose_model == 'metrabs':
+            # MeTRAbs specific configuration
+            processor_kwargs = {
+                'output_dir': self.config.get('metrabs_output_dir', 'metrabs_output'),
+                'fps': self.config.get('fps', 30.0),
+                'model_name': pose_config.get('model_name', 'metrabs_4x_512'),
+                'device': pose_config.get('device', 'auto'),
+                'batch_size': pose_config.get('batch_size', 1),
+                'num_aug': pose_config.get('num_aug', 1)
+            }
+        else:
+            raise ValueError(f"Unsupported pose model: {pose_model}")
+        
+        # Create unified pose processor
+        self.pose_processor = UnifiedPoseProcessor(
+            model_type=pose_model,
+            output_dir=self.config.get('pose_output_dir', 'pose_output'),
+            **processor_kwargs
         )
         
-        logger.info("MediaPipe setup completed successfully")
+        logger.info(f"{pose_model} setup completed successfully")
         return True
     
     def setup_visualization(self):
@@ -172,10 +197,10 @@ class GaitAnalysisPipeline:
             try:
                 logger.info(f"Processing video {i+1}/{len(video_paths)}: {video_path}")
                 
-                success = self.mediapipe_processor.process_video(video_path)
+                success = self.pose_processor.process_video(video_path)
                 
                 if success:
-                    json_dirs.append(self.mediapipe_processor.output_dir)
+                    json_dirs.append(self.pose_processor.processor.output_dir)
                     logger.info(f"Successfully processed {video_path}")
                 else:
                     logger.warning(f"Failed to process {video_path}, skipping")
@@ -337,8 +362,8 @@ class GaitAnalysisPipeline:
         
         try:
             # Setup components (pose detection is always enabled)
-            if not self.setup_mediapipe():
-                raise RuntimeError("MediaPipe setup failed")
+            if not self.setup_pose_processor():
+                raise RuntimeError("Pose processor setup failed")
             
             if self.enable_realtime_visualization:
                 if not self.setup_visualization():
@@ -411,12 +436,25 @@ def create_default_config() -> Dict[str, Any]:
         'enable_realtime_visualization': False,
         'enable_gait_analysis': True,
         
+        # Pose model settings
+        'pose_model': 'mediapipe',  # 'mediapipe' or 'metrabs'
+        'pose_output_dir': 'pose_output',
+        'fps': 30.0,
+        
         # MediaPipe settings
         'mediapipe_output_dir': 'mediapipe_output',
-        'fps': 30.0,
         'model_complexity': 1,  # 0, 1, or 2
         'min_detection_confidence': 0.5,
         'min_tracking_confidence': 0.5,
+        
+        # MeTRAbs settings
+        'metrabs_output_dir': 'metrabs_output',
+        'pose_config': {
+            'model_name': 'metrabs_4x_512',  # 'metrabs_4x_512', 'metrabs_4x_1024'
+            'device': 'auto',  # 'auto', 'cpu', 'cuda'
+            'batch_size': 1,
+            'num_aug': 1
+        },
         
         # Data preprocessing settings
         'confidence_threshold': 0.3,
@@ -457,6 +495,8 @@ def main():
                        default='phase_detection', help='Analysis task type')
     parser.add_argument('--output', '-o', default='gait_analysis_results',
                        help='Output directory for results')
+    parser.add_argument('--pose-model', choices=['mediapipe', 'metrabs'],
+                       default='mediapipe', help='Pose estimation model to use')
     
     # Feature toggle arguments
     parser.add_argument('--pose-detection-only', action='store_true',
@@ -480,6 +520,7 @@ def main():
     # Update config with command line arguments
     config['task_type'] = args.task
     config['results_dir'] = args.output
+    config['pose_model'] = args.pose_model
     
     # Handle feature toggles (pose detection is always enabled)
     if args.pose_detection_only:
