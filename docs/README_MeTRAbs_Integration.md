@@ -309,6 +309,15 @@ The MeTRAbs integration is fully compatible with the existing gait analysis pipe
 3. **Adaptive Selection**: Automatically choose best model based on video characteristics
 4. **Real-time Switching**: Switch models during processing based on performance
 
+## Related Documentation
+
+For more information about the project and its evolution:
+
+- **Project Changelog**: [docs/README_Changelog.md](README_Changelog.md) - Complete project history and changes
+- **Installation Guide**: [docs/README_Installation.md](README_Installation.md) - Comprehensive installation instructions
+- **TCN System Documentation**: [docs/README_TCN_Gait_Analysis.md](README_TCN_Gait_Analysis.md) - Technical system documentation
+- **Core Modules**: [core/README_CoreModules.md](../core/README_CoreModules.md) - Core system modules documentation
+
 ## Support
 
 For issues and questions:
@@ -317,3 +326,4 @@ For issues and questions:
 2. Review the model comparison for your use case
 3. Ensure proper hardware requirements for MeTRAbs
 4. Consider using MediaPipe for real-time applications
+5. Refer to the project changelog for recent changes and updates

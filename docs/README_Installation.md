@@ -151,23 +151,24 @@ WORKDIR /app
 ```bash
 # Test basic imports
 python3 -c "
-from core.pose_processor_manager import UnifiedPoseProcessor
+from core.pose_processor_manager import UnifiedPoseProcessor, PoseProcessorManager
 print('✅ Core installation successful')
+print('Available models:', list(PoseProcessorManager.get_available_models().keys()))
 "
 ```
 
-### Test MediaPipe
+### Test Pose Models
 
 ```bash
-# Test MediaPipe functionality
+# Test all available pose models
+python3 usecases/testing/test_pose_models.py
+
+# Test specific model
 python3 usecases/testing/test_pose_models.py --model mediapipe
-```
-
-### Test MeTRAbs
-
-```bash
-# Test MeTRAbs functionality (if installed)
 python3 usecases/testing/test_pose_models.py --model metrabs
+
+# Compare models
+python3 scripts/pose_model_comparison.py --info
 ```
 
 ### Test Complete System
@@ -175,6 +176,9 @@ python3 usecases/testing/test_pose_models.py --model metrabs
 ```bash
 # Run comprehensive system tests
 python3 usecases/testing/test_system.py
+
+# Test pose processor integration specifically
+python3 usecases/testing/test_system.py --test-pose-processor
 ```
 
 ## Troubleshooting
@@ -273,6 +277,15 @@ After successful installation:
 2. **Process videos**: Use the main analysis pipeline
 3. **Compare models**: Use the comparison script to choose the best model for your use case
 4. **Customize**: Modify configuration files for your specific needs
+
+## Related Documentation
+
+For more information about the project and its evolution:
+
+- **Project Changelog**: [docs/README_Changelog.md](README_Changelog.md) - Complete project history and changes
+- **MeTRAbs Integration**: [docs/README_MeTRAbs_Integration.md](README_MeTRAbs_Integration.md) - Detailed MeTRAbs guide
+- **TCN System Documentation**: [docs/README_TCN_Gait_Analysis.md](README_TCN_Gait_Analysis.md) - Technical system documentation
+- **Core Modules**: [core/README_CoreModules.md](../core/README_CoreModules.md) - Core system modules documentation
 
 ## Support
 

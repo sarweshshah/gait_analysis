@@ -77,15 +77,16 @@ The algorithm produced the following image for the side view of my walk:
 
 ## Advanced TCN-Based Gait Analysis System
 
-This repository now includes a comprehensive **Temporal Convolutional Network (TCN)** system for markerless gait analysis using MediaPipe pose estimation.
+This repository now includes a comprehensive **Temporal Convolutional Network (TCN)** system for markerless gait analysis with **unified pose estimation** supporting both MediaPipe and MeTRAbs.
 
 **Key Features:**
 
-- MediaPipe pose estimation with foot keypoints
-- Advanced data preprocessing with gap-filling and filtering
-- TCN architecture for temporal sequence modeling
-- Cross-validation training pipeline
-- Comprehensive evaluation metrics
+- **Unified Pose Estimation**: Support for both MediaPipe (fast) and MeTRAbs (accurate) pose models
+- **Model Switching**: Easy switching between pose estimation models
+- **Advanced Data Preprocessing**: Gap-filling, filtering, and normalization
+- **TCN Architecture**: Temporal sequence modeling for gait analysis
+- **Cross-validation Training**: Robust evaluation pipeline
+- **Comprehensive Evaluation**: Gait-specific metrics and visualization
 
 **Project Structure:**
 
@@ -96,9 +97,11 @@ gait_analysis/
 │   │   ├── constants.py                        # Core constants
 │   │   ├── config.py                           # Configuration management
 │   │   └── logging_config.py                   # Logging configuration
+│   ├── pose_processor_manager.py               # Unified pose processor manager
+│   ├── mediapipe_integration.py                # MediaPipe pose estimation
+│   ├── metrabs_integration.py                  # MeTRAbs pose estimation
 │   ├── gait_data_preprocessing.py              # Data preprocessing and feature extraction
 │   ├── gait_training.py                        # Training and evaluation module
-│   ├── mediapipe_integration.py                # MediaPipe processing module
 │   └── tcn_gait_model.py                       # Temporal Convolutional Network model
 ├── usecases/                                   # Use case implementations
 │   ├── gait_analysis/                          # Main gait analysis use case
@@ -107,17 +110,20 @@ gait_analysis/
 │   │   ├── utils.py                            # Utilities for quick analysis
 │   │   └── main_gait_analysis.py               # Main pipeline orchestrator
 │   └── testing/                                # Testing and validation
-│       ├── test_mediapipe_simple.py            # Simple MediaPipe tests
+│       ├── test_pose_models.py                 # Pose model testing and comparison
 │       └── test_system.py                      # System testing and validation
 ├── scripts/                                    # Utility scripts
-│   ├── mediapipe_cli.py                        # MediaPipe CLI tool
+│   ├── pose_model_comparison.py                # Pose model comparison tool
 │   └── run_gait_analysis.py                    # Gait analysis runner
 ├── configs/                                    # Configuration files
 │   ├── default.json                            # Default configuration
 │   └── gait_analysis.json                      # Configuration for both models
 ├── docs/                                       # Documentation
 │   ├── README_RealTime_Visualization.md        # Real-time visualization docs
-│   └── README_TCN_Gait_Analysis.md             # TCN system documentation
+│   ├── README_TCN_Gait_Analysis.md             # TCN system documentation
+│   ├── README_Installation.md                  # Installation guide
+│   ├── README_MeTRAbs_Integration.md           # MeTRAbs integration guide
+│   └── README_Changelog.md                     # Project changelog and history
 ├── archive/                                    # Legacy scripts (see archive/README.md)
 ├── data/                                       # Input data directory
 │   ├── models/                                 # Trained models
@@ -138,26 +144,57 @@ gait_analysis/
 # or
 setup_environment.bat   # Windows
 
-# Run analysis
+# Test pose models
 source .venv/bin/activate
+python3 usecases/testing/test_pose_models.py
+
+# Run analysis with MediaPipe (default)
 python3 usecases/gait_analysis/main_gait_analysis.py --help
+
+# Compare pose models
+python3 scripts/pose_model_comparison.py --help
+```
+
+## Pose Estimation Models
+
+The system now supports two pose estimation models through a unified interface:
+
+### MediaPipe (Default)
+- **Speed**: Fast, real-time processing
+- **Accuracy**: Good for most applications
+- **Resource Usage**: Low, works on CPU
+- **Best For**: Real-time applications, mobile/edge devices
+
+### MeTRAbs (Optional)
+- **Speed**: Slower, batch processing
+- **Accuracy**: Higher precision
+- **Resource Usage**: High, GPU recommended
+- **Best For**: High-accuracy research, offline analysis
+
+**Model Comparison:**
+```bash
+# Compare both models on the same video
+python3 scripts/pose_model_comparison.py --video data/video.mp4 --compare
+
+# Process with specific model
+python3 usecases/gait_analysis/main_gait_analysis.py --videos video.mp4 --pose-model metrabs
 ```
 
 ## Real-time Pose Visualization
 
-The system includes a real-time pose visualization tool that displays pose keypoints as colored dots with trail effects, similar to the original trail video approach but using MediaPipe.
+The system includes a real-time pose visualization tool that displays pose keypoints as colored dots with trail effects, similar to the original trail video approach but using the unified pose estimation system.
 
 **Quick Demo:**
 
 ```bash
-# Basic visualization with trail effect
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh.mp4
+# Basic visualization with trail effect (MediaPipe)
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4
 
 # Show confidence values
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh.mp4 --show-confidence
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --show-confidence
 
 # Fast performance mode
-python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh.mp4 --model-complexity 0 --no-trail
+python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/raw/sarwesh1.mp4 --model-complexity 0 --no-trail
 ```
 
 **Interactive Controls:**
@@ -173,6 +210,12 @@ python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/ra
 
 **For detailed TCN documentation, see:** [docs/README_TCN_Gait_Analysis.md](docs/README_TCN_Gait_Analysis.md)
 
+**For installation guide, see:** [docs/README_Installation.md](docs/README_Installation.md)
+
+**For MeTRAbs integration, see:** [docs/README_MeTRAbs_Integration.md](docs/README_MeTRAbs_Integration.md)
+
 **For core modules documentation, see:** [core/README_CoreModules.md](core/README_CoreModules.md)
+
+**For project changelog and history, see:** [docs/README_Changelog.md](docs/README_Changelog.md)
 
 **Note:** Legacy scripts from the initial development phase have been moved to the `archive/` directory. See [archive/README.md](archive/README.md) for details about the archived files and migration notes. The basic gait analysis system documentation is now included above.

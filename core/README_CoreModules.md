@@ -4,9 +4,13 @@ This directory contains the core modules that power the gait analysis system. Th
 
 ## Module Overview
 
+### Pose Estimation
+- **`pose_processor_manager.py`** - Unified pose processor manager supporting MediaPipe and MeTRAbs
+- **`mediapipe_integration.py`** - MediaPipe pose estimation integration with BODY_25 keypoint mapping
+- **`metrabs_integration.py`** - MeTRAbs pose estimation integration with high accuracy
+
 ### Data Processing
 - **`gait_data_preprocessing.py`** - Advanced data preprocessing with gap-filling, filtering, and normalization
-- **`mediapipe_integration.py`** - MediaPipe pose estimation integration with BODY_25 keypoint mapping
 
 ### Machine Learning
 - **`tcn_gait_model.py`** - Temporal Convolutional Network architecture for gait analysis
@@ -37,6 +41,31 @@ preprocessor = GaitDataPreprocessor()
 features, labels = preprocessor.process_pose_data(pose_data)
 ```
 
+### pose_processor_manager.py
+
+**Purpose**: Provides a unified interface for different pose estimation models with easy switching between MediaPipe and MeTRAbs.
+
+**Key Features**:
+- **UnifiedPoseProcessor**: Single interface for all pose models
+- **PoseProcessorManager**: Manager class for creating pose processors
+- **PoseProcessor**: Abstract base class for pose processors
+- Model switching capabilities
+- Consistent API regardless of underlying model
+- Support for MediaPipe and MeTRAbs
+
+**Usage**:
+```python
+from core.pose_processor_manager import UnifiedPoseProcessor
+
+# Use MediaPipe (default)
+processor = UnifiedPoseProcessor(model_type='mediapipe')
+pose_data = processor.process_video("video.mp4")
+
+# Switch to MeTRAbs
+processor.switch_model('metrabs')
+pose_data = processor.process_video("video.mp4")
+```
+
 ### mediapipe_integration.py
 
 **Purpose**: Handles video processing with MediaPipe pose estimation and converts output to BODY_25 format.
@@ -53,6 +82,25 @@ features, labels = preprocessor.process_pose_data(pose_data)
 from core.mediapipe_integration import MediaPipeProcessor
 
 processor = MediaPipeProcessor()
+pose_data = processor.process_video("video.mp4")
+```
+
+### metrabs_integration.py
+
+**Purpose**: Handles video processing with MeTRAbs pose estimation for high-accuracy pose estimation.
+
+**Key Features**:
+- MeTRAbs pose estimation with test-time augmentation
+- BODY_25 compatible output format
+- GPU acceleration support
+- Batch processing capabilities
+- High accuracy pose estimation
+
+**Usage**:
+```python
+from core.metrabs_integration import MeTRAbsProcessor
+
+processor = MeTRAbsProcessor()
 pose_data = processor.process_video("video.mp4")
 ```
 
@@ -139,10 +187,14 @@ The core modules are designed to be imported and used by specific use case imple
 
 ```python
 # Example usage in usecases/gait_analysis/main_gait_analysis.py
-from core.mediapipe_integration import MediaPipeProcessor
+from core.pose_processor_manager import UnifiedPoseProcessor
 from core.gait_data_preprocessing import GaitDataPreprocessor
 from core.tcn_gait_model import TCNGaitModel
 from core.gait_training import GaitTrainer
+
+# Unified pose processor usage
+processor = UnifiedPoseProcessor(model_type='mediapipe')
+pose_data = processor.process_video("video.mp4")
 ```
 
 ## Conventions
@@ -152,6 +204,7 @@ To keep the core APIs simple and readable, the system uses plain string literals
 - Task types: 'phase_detection', 'event_detection'
 - Event dictionary keys: 'heel_strikes', 'toe_offs', 'flat_foots', 'heel_offs'
 - Sides and labels: 'left', 'right', etc.
+- Pose models: 'mediapipe', 'metrabs'
 
 Only core domain names like event names and sides are kept as centralized constants in `core/utils/constants.py` to avoid typos. Do not introduce constants for simple dictionary keys or task type strings.
 
@@ -184,7 +237,9 @@ Core modules use configuration files from the `configs/` directory:
 ## Dependencies
 
 Core modules require:
-- MediaPipe >= 0.10.0
+- MediaPipe >= 0.10.0 (for MediaPipe pose estimation)
+- PyTorch >= 1.9.0 (for MeTRAbs pose estimation, optional)
+- MeTRAbs (optional, for high-accuracy pose estimation)
 - TensorFlow >= 2.8.0
 - NumPy, SciPy, Pandas
 - OpenCV for video processing
@@ -216,3 +271,12 @@ Core modules implement robust error handling:
 - Automatic fallback to CPU processing if GPU fails
 
 For detailed usage examples and advanced configuration, see the documentation in the `docs/` directory and the use case implementations in `usecases/`.
+
+## Related Documentation
+
+For more information about the project and its evolution:
+
+- **Project Changelog**: [docs/README_Changelog.md](../docs/README_Changelog.md) - Complete project history and changes
+- **Installation Guide**: [docs/README_Installation.md](../docs/README_Installation.md) - Comprehensive installation instructions
+- **MeTRAbs Integration**: [docs/README_MeTRAbs_Integration.md](../docs/README_MeTRAbs_Integration.md) - Detailed MeTRAbs guide
+- **TCN System Documentation**: [docs/README_TCN_Gait_Analysis.md](../docs/README_TCN_Gait_Analysis.md) - Technical system documentation

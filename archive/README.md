@@ -193,11 +193,30 @@ These files were archived because:
 
 ### If you need functionality from these archived files, consider:
 
-1. **MediaPipe Integration**: Use the current system's MediaPipe-based pose estimation
-2. **Modern Alternatives**: Consider MediaPipe, BlazePose, or other lightweight solutions
-3. **Custom Implementation**: Adapt the visualization logic to work with current pipeline
+1. **Unified Pose Processor**: Use the current system's unified pose estimation with MediaPipe and MeTRAbs
+2. **Modern Alternatives**: The current system supports both MediaPipe (fast) and MeTRAbs (accurate)
+3. **Real-time Visualization**: Use the current real-time pose visualization tool
+4. **Custom Implementation**: Adapt the visualization logic to work with the unified pose processor
 
 The archived files can serve as reference for specific implementation details if needed.
+
+## Testing Current System
+
+To verify the current system structure:
+
+```bash
+# Test the unified pose processor
+python3 usecases/testing/test_pose_models.py
+
+# Test the complete system
+python3 usecases/testing/test_system.py
+
+# Compare available models
+python3 scripts/pose_model_comparison.py --info
+
+# Compare models on a video
+python3 scripts/pose_model_comparison.py --video data/video.mp4 --compare
+```
 
 ## License
 

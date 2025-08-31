@@ -9,7 +9,8 @@ A real-time pose visualization system that processes video files and displays po
 - **Real-time Processing**: Video plays with pose keypoints displayed as colored dots
 - **Trail Effect**: Shows keypoint movement history with fading trails
 - **No Video Saving**: Displays in window and discards after playback
-- **MediaPipe Integration**: Uses the same pose estimation as the gait analysis system
+- **Unified Pose Integration**: Uses the same pose estimation system as the gait analysis pipeline
+- **Model Selection**: Supports both MediaPipe and MeTRAbs pose estimation models
 
 ### 🎨 Visualization Options
 
@@ -173,10 +174,12 @@ The visualization uses different colors for each body part:
 
 This visualization system is designed to work with the main gait analysis pipeline:
 
-1. **Same Pose Estimation**: Uses MediaPipe like the main system
-2. **Compatible Data**: Outputs same keypoint format
-3. **Real-time Testing**: Perfect for testing pose detection on videos
-4. **Visual Validation**: Helps verify pose estimation quality
+1. **Unified Pose System**: Uses the same unified pose processor as the main system
+2. **Model Compatibility**: Supports both MediaPipe and MeTRAbs models
+3. **Compatible Data**: Outputs same keypoint format
+4. **Real-time Testing**: Perfect for testing pose detection on videos
+5. **Visual Validation**: Helps verify pose estimation quality
+6. **Model Comparison**: Can visualize differences between pose models
 
 ## Examples
 
@@ -220,6 +223,16 @@ gait_analysis/
 │   └── README_RealTime_Visualization.md        # This file
 └── .venv/                                      # Virtual environment
 ```
+
+## Related Documentation
+
+For more information about the project and its evolution:
+
+- **Project Changelog**: [docs/README_Changelog.md](README_Changelog.md) - Complete project history and changes
+- **Installation Guide**: [docs/README_Installation.md](README_Installation.md) - Comprehensive installation instructions
+- **MeTRAbs Integration**: [docs/README_MeTRAbs_Integration.md](README_MeTRAbs_Integration.md) - Detailed MeTRAbs guide
+- **TCN System Documentation**: [docs/README_TCN_Gait_Analysis.md](README_TCN_Gait_Analysis.md) - Technical system documentation
+- **Core Modules**: [core/README_CoreModules.md](../core/README_CoreModules.md) - Core system modules documentation
 
 ## Contributing
 

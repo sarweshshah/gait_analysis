@@ -89,35 +89,49 @@ source .venv/bin/activate  # On macOS/Linux
 ### 6. Verify Installation
 
 ```bash
+# Test the complete system
 python3 usecases/testing/test_system.py
+
+# Test pose models specifically
+python3 usecases/testing/test_pose_models.py
+
+# Compare available models
+python3 scripts/pose_model_comparison.py --info
 ```
 
-This will run a comprehensive test of all system components.
+These will run comprehensive tests of all system components including the unified pose processor.
 
 ## System Architecture
 
-The system consists of four main components:
+The system consists of five main components:
 
-### 1. MediaPipe Integration (`mediapipe_integration.py`)
-- Processes videos with BODY_25 model
-- Extracts 2D pose keypoints including foot landmarks
-- Manages JSON output files
-- Validates pose detection quality
+### 1. Unified Pose Processor (`pose_processor_manager.py`)
+- **UnifiedPoseProcessor**: Single interface for all pose estimation models
+- **PoseProcessorManager**: Manager class for creating pose processors
+- **PoseProcessor**: Abstract base class for pose processors
+- Supports MediaPipe and MeTRAbs with easy model switching
+- Consistent API regardless of underlying model
 
-### 2. Data Preprocessing (`gait_data_preprocessing.py`)
+### 2. Pose Estimation Models
+- **MediaPipe Integration (`mediapipe_integration.py`)**: Fast, real-time pose estimation
+- **MeTRAbs Integration (`metrabs_integration.py`)**: High-accuracy pose estimation
+- Both models output BODY_25 compatible format
+- Automatic model selection and switching capabilities
+
+### 3. Data Preprocessing (`gait_data_preprocessing.py`)
 - Cleans and interpolates missing keypoints
 - Applies low-pass filtering to reduce noise
 - Normalizes coordinates for viewpoint invariance
 - Extracts gait-specific features
 - Creates fixed-length windows for TCN input
 
-### 3. TCN Model (`tcn_gait_model.py`)
+### 4. TCN Model (`tcn_gait_model.py`)
 - Implements dilated causal convolutions
 - Supports both phase detection and event detection
 - Includes residual connections and batch normalization
 - Configurable architecture for different tasks
 
-### 4. Training and Evaluation (`gait_training.py`)
+### 5. Training and Evaluation (`gait_training.py`)
 - Cross-validation training pipeline
 - Gait-specific evaluation metrics
 - Comprehensive result visualization
@@ -258,17 +272,29 @@ python3 usecases/gait_analysis/main_gait_analysis.py \
     --output event_results/
 ```
 
-### 2. MediaPipe Processing Only
+### 2. Pose Model Processing
 
 ```bash
 # Activate virtual environment first
 source .venv/bin/activate
 
-# Process video with MediaPipe
-python3 scripts/mediapipe_cli.py \
-    --input gait_video.mp4 \
-    --output mediapipe_output/ \
-    --fps 30.0
+# Process video with MediaPipe (default)
+python3 scripts/pose_model_comparison.py \
+    --video gait_video.mp4 \
+    --model mediapipe \
+    --output pose_output/
+
+# Process video with MeTRAbs
+python3 scripts/pose_model_comparison.py \
+    --video gait_video.mp4 \
+    --model metrabs \
+    --output pose_output/
+
+# Compare both models
+python3 scripts/pose_model_comparison.py \
+    --video gait_video.mp4 \
+    --compare \
+    --output comparison_results/
 ```
 
 ### 3. Custom Configuration
@@ -306,11 +332,13 @@ python3 usecases/gait_analysis/main_gait_analysis.py \
 
 ```python
 from usecases.gait_analysis.main_gait_analysis import GaitAnalysisPipeline, create_default_config
+from core.pose_processor_manager import UnifiedPoseProcessor
 
 # Create configuration
 config = create_default_config()
 config['task_type'] = 'phase_detection'
 config['num_classes'] = 4
+config['pose_model'] = 'metrabs'  # or 'mediapipe'
 
 # Initialize pipeline
 pipeline = GaitAnalysisPipeline(config)
@@ -323,6 +351,14 @@ results = pipeline.run_complete_pipeline(video_paths, labels)
 
 # Access results
 print(f"Mean Accuracy: {results['overall_metrics']['mean_accuracy']:.4f}")
+
+# Direct pose processor usage
+processor = UnifiedPoseProcessor(model_type='mediapipe')
+success = processor.process_video('video.mp4')
+
+# Switch to different model
+processor.switch_model('metrabs')
+success = processor.process_video('video.mp4')
 ```
 
 ## Conventions
@@ -332,6 +368,7 @@ To keep the API clear and simple, the system uses enums for task types and dicti
 - Task types: use `core.constants.TaskType` and `TaskType.DEFAULT`
 - Event dictionaries: use constants such as `core.constants.EventType` and `EventType.HEEL_STRIKE`
 - Sides and labels in results: use constants such as `core.constants.Side` and `Side.LEFT`
+- Pose models: use string literals 'mediapipe' or 'metrabs' for model selection
 
 Please note that these changes are now reflected in the repository.
 For more details, see the [constants file](core/utils/constants.py) in the repository.
@@ -460,6 +497,15 @@ config['num_blocks'] = 3
 2. **Batch Processing**: Process multiple videos in parallel
 3. **Memory Management**: Use appropriate batch sizes
 4. **Data Preprocessing**: Cache preprocessed data for faster training
+
+## Related Documentation
+
+For more information about the project and its evolution:
+
+- **Project Changelog**: [docs/README_Changelog.md](README_Changelog.md) - Complete project history and changes
+- **Installation Guide**: [docs/README_Installation.md](README_Installation.md) - Comprehensive installation instructions
+- **MeTRAbs Integration**: [docs/README_MeTRAbs_Integration.md](README_MeTRAbs_Integration.md) - Detailed MeTRAbs guide
+- **Core Modules**: [core/README_CoreModules.md](../core/README_CoreModules.md) - Core system modules documentation
 
 ## References
 
