@@ -114,7 +114,7 @@ gait_analysis/
 │   └── run_gait_analysis.py                    # Gait analysis runner
 ├── configs/                                    # Configuration files
 │   ├── default.json                            # Default configuration
-│   └── gait_analysis.json                      # Gait analysis specific config
+│   └── gait_analysis.json                      # Configuration for both models
 ├── docs/                                       # Documentation
 │   ├── README_RealTime_Visualization.md        # Real-time visualization docs
 │   └── README_TCN_Gait_Analysis.md             # TCN system documentation
@@ -173,4 +173,6 @@ python3 usecases/gait_analysis/features/realtime_pose_visualization.py videos/ra
 
 **For detailed TCN documentation, see:** [docs/README_TCN_Gait_Analysis.md](docs/README_TCN_Gait_Analysis.md)
 
-**Note:** Legacy scripts from the initial development phase have been moved to the `archive/` directory. See [archive/README.md](archive/README.md) for details about the archived files and migration notes.
+**For core modules documentation, see:** [core/README_CoreModules.md](core/README_CoreModules.md)
+
+**Note:** Legacy scripts from the initial development phase have been moved to the `archive/` directory. See [archive/README.md](archive/README.md) for details about the archived files and migration notes. The basic gait analysis system documentation is now included above.

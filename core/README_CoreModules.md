@@ -179,7 +179,7 @@ Note: Dictionary keys and task types should be used as string literals in code. 
 Core modules use configuration files from the `configs/` directory:
 
 - **`configs/default.json`** - Default system parameters
-- **`configs/gait_analysis.json`** - Gait analysis specific configuration
+- **`configs/gait_analysis.json`** - Configuration for both models
 
 ## Dependencies
 

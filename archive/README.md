@@ -1,5 +1,5 @@
-# Archived Files - Legacy OpenPose-based Gait Analysis
-This directory contains legacy scripts from the initial development phase of the gait analysis system. 
+# Archived Files - Legacy Gait Analysis System
+This directory contains legacy scripts and documentation from the initial development phase of the gait analysis system. 
 These scripts use OpenPose for pose estimation and provide basic visualization and detection capabilities.
 
 ## Archived Files
@@ -133,9 +133,9 @@ Edit `config.py` to customize:
 
 ```
 archive/
-├── README.md                    # This file
-├── requirements.txt             # Python dependencies
-├── config.py                    # Configuration settings
+├── README.md                   # This file
+├── requirements.txt            # Python dependencies
+├── config.py                   # Configuration settings
 ├── run_scripts.py              # Script runner utility
 ├── setup_environment.sh        # Linux/Mac setup script
 ├── setup_environment.bat       # Windows setup script
