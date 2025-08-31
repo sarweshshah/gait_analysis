@@ -136,12 +136,12 @@ def main():
     test_model_switching()
     
     # Test 4: Video processing (if video available)
-    video_path = "data/sarwesh1.mp4"  # Adjust path as needed
+    video_path = "videos/raw/sarwesh1.mp4"  # Updated path to videos folder
     if os.path.exists(video_path):
         test_video_processing(video_path)
     else:
         print(f"\nSkipping video processing test - video not found: {video_path}")
-        print("To test video processing, place a video file in the data directory")
+        print("To test video processing, place a video file in the videos/raw directory")
     
     print("\n" + "="*60)
     print("TEST COMPLETED")
