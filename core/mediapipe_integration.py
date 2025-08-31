@@ -17,6 +17,7 @@ from typing import List, Dict, Tuple, Optional
 import logging
 from pathlib import Path
 from datetime import datetime
+from .performance_optimizer import PerformanceOptimizer, performance_timer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -42,7 +43,9 @@ class MediaPipeProcessor:
                  enable_segmentation: bool = False,
                  smooth_segmentation: bool = True,
                  min_detection_confidence: float = 0.5,
-                 min_tracking_confidence: float = 0.5):
+                 min_tracking_confidence: float = 0.5,
+                 performance_mode: str = 'balanced',
+                 enable_optimizations: bool = True):
         """
         Initialize the MediaPipe pose processor.
         
@@ -56,12 +59,30 @@ class MediaPipeProcessor:
             smooth_segmentation: Whether to smooth segmentation
             min_detection_confidence: Minimum confidence for detection
             min_tracking_confidence: Minimum confidence for tracking
+            performance_mode: Performance mode ('fast', 'balanced', 'accurate')
+            enable_optimizations: Whether to enable performance optimizations
         """
         self.output_dir = output_dir
         self.fps = fps
+        self.enable_optimizations = enable_optimizations
         
         # Create output directory
         os.makedirs(self.output_dir, exist_ok=True)
+        
+        # Initialize performance optimizer if enabled
+        if self.enable_optimizations:
+            self.performance_optimizer = PerformanceOptimizer(performance_mode)
+            # Get optimized MediaPipe configuration
+            optimized_config = self.performance_optimizer.get_optimized_mediapipe_config()
+            
+            # Override parameters with optimized values
+            static_image_mode = optimized_config['static_image_mode']
+            model_complexity = optimized_config['model_complexity']
+            smooth_landmarks = optimized_config['smooth_landmarks']
+            enable_segmentation = optimized_config['enable_segmentation']
+            smooth_segmentation = optimized_config['smooth_segmentation']
+            min_detection_confidence = optimized_config['min_detection_confidence']
+            min_tracking_confidence = optimized_config['min_tracking_confidence']
         
         # Initialize MediaPipe Pose
         self.mp_pose = mp.solutions.pose
@@ -110,6 +131,12 @@ class MediaPipeProcessor:
         self.landmark_mapping = self._create_landmark_mapping()
         
         logger.info(f"Initialized MediaPipeProcessor with {len(self.mediapipe_landmarks)} landmarks")
+    
+    def cleanup(self):
+        """Cleanup resources and optimizations."""
+        if hasattr(self, 'performance_optimizer') and self.enable_optimizations:
+            self.performance_optimizer.cleanup()
+        logger.info("MediaPipe processor cleanup completed")
     
     def _create_landmark_mapping(self) -> Dict[int, int]:
         """
@@ -173,6 +200,7 @@ class MediaPipeProcessor:
         
         return mapping
     
+    @performance_timer
     def process_video(self, video_path: str) -> bool:
         """
         Process video file and extract pose landmarks.
@@ -185,6 +213,13 @@ class MediaPipeProcessor:
         """
         logger.info(f"Processing video: {video_path}")
         
+        if self.enable_optimizations:
+            return self._process_video_optimized(video_path)
+        else:
+            return self._process_video_standard(video_path)
+    
+    def _process_video_standard(self, video_path: str) -> bool:
+        """Standard video processing without optimizations."""
         # Open video file
         cap = cv2.VideoCapture(video_path)
         if not cap.isOpened():
@@ -213,6 +248,57 @@ class MediaPipeProcessor:
             # Save results
             self._save_results(frame_data, video_path)
             logger.info(f"Successfully processed {len(frame_data)} frames")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error processing video: {e}")
+            return False
+        finally:
+            cap.release()
+    
+    def _process_video_optimized(self, video_path: str) -> bool:
+        """Optimized video processing with performance enhancements."""
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            logger.error(f"Could not open video file: {video_path}")
+            return False
+        
+        video_name = Path(video_path).stem
+        frame_count = 0
+        
+        try:
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                
+                # Optimize frame size if needed
+                if self.enable_optimizations:
+                    frame = self.performance_optimizer.optimize_frame_processing(frame)
+                
+                # Process frame
+                frame_landmarks = self._process_frame(frame, frame_count)
+                if frame_landmarks:
+                    # Use optimized I/O for saving
+                    self.performance_optimizer.io_optimizer.add_frame_data(
+                        frame_landmarks, self.output_dir, video_name
+                    )
+                
+                frame_count += 1
+                
+                if frame_count % 100 == 0:
+                    logger.info(f"Processed {frame_count} frames")
+                
+                # Check memory usage and optimize if needed
+                if self.enable_optimizations:
+                    if not self.performance_optimizer.memory_optimizer.check_memory_usage():
+                        self.performance_optimizer.memory_optimizer.optimize_memory()
+            
+            # Flush remaining data
+            if self.enable_optimizations:
+                self.performance_optimizer.io_optimizer.flush_remaining(self.output_dir, video_name)
+            
+            logger.info(f"Successfully processed {frame_count} frames")
             return True
             
         except Exception as e:

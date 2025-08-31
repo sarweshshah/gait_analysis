@@ -1,0 +1,108 @@
+{
+  "performance_profiles": {
+    "fast": {
+      "description": "Fastest processing with minimal accuracy trade-offs",
+      "performance_mode": "fast",
+      "enable_optimizations": true,
+      "max_memory_mb": 1024,
+      "mediapipe": {
+        "model_complexity": 0,
+        "min_detection_confidence": 0.3,
+        "min_tracking_confidence": 0.3,
+        "smooth_landmarks": false,
+        "enable_segmentation": false
+      },
+      "preprocessing": {
+        "confidence_threshold": 0.2,
+        "filter_cutoff": 8.0,
+        "filter_order": 2,
+        "window_size": 20,
+        "overlap": 0.3
+      },
+      "training": {
+        "num_filters": 32,
+        "num_blocks": 2,
+        "kernel_size": 3,
+        "dropout_rate": 0.1,
+        "batch_size": 64,
+        "epochs": 50,
+        "n_folds": 3
+      }
+    },
+    "balanced": {
+      "description": "Balanced performance and accuracy",
+      "performance_mode": "balanced",
+      "enable_optimizations": true,
+      "max_memory_mb": 2048,
+      "mediapipe": {
+        "model_complexity": 1,
+        "min_detection_confidence": 0.5,
+        "min_tracking_confidence": 0.5,
+        "smooth_landmarks": true,
+        "enable_segmentation": false
+      },
+      "preprocessing": {
+        "confidence_threshold": 0.3,
+        "filter_cutoff": 6.0,
+        "filter_order": 4,
+        "window_size": 30,
+        "overlap": 0.5
+      },
+      "training": {
+        "num_filters": 64,
+        "num_blocks": 4,
+        "kernel_size": 3,
+        "dropout_rate": 0.2,
+        "batch_size": 32,
+        "epochs": 100,
+        "n_folds": 5
+      }
+    },
+    "accurate": {
+      "description": "Highest accuracy with slower processing",
+      "performance_mode": "accurate",
+      "enable_optimizations": true,
+      "max_memory_mb": 4096,
+      "mediapipe": {
+        "model_complexity": 2,
+        "min_detection_confidence": 0.7,
+        "min_tracking_confidence": 0.7,
+        "smooth_landmarks": true,
+        "enable_segmentation": true
+      },
+      "preprocessing": {
+        "confidence_threshold": 0.4,
+        "filter_cutoff": 4.0,
+        "filter_order": 6,
+        "window_size": 40,
+        "overlap": 0.7
+      },
+      "training": {
+        "num_filters": 128,
+        "num_blocks": 6,
+        "kernel_size": 5,
+        "dropout_rate": 0.3,
+        "batch_size": 16,
+        "epochs": 200,
+        "n_folds": 10
+      }
+    }
+  },
+  "io_optimization": {
+    "batch_size": 100,
+    "use_compression": true,
+    "parallel_processing": true,
+    "max_workers": 4
+  },
+  "memory_optimization": {
+    "chunk_processing": true,
+    "chunk_size": 1000,
+    "garbage_collection_frequency": 100
+  },
+  "model_optimization": {
+    "mixed_precision": true,
+    "gradient_accumulation": false,
+    "early_stopping": true,
+    "model_checkpointing": true
+  }
+}

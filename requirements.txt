@@ -26,6 +26,7 @@ imutils>=0.5.4
 tqdm>=4.62.0
 pathlib2>=2.3.0
 argparse>=1.4.0
+psutil>=5.8.0
 
 # Development and testing
 pytest>=6.2.0

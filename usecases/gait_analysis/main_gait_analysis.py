@@ -25,6 +25,7 @@ from core.mediapipe_integration import MediaPipeProcessor
 from core.gait_data_preprocessing import GaitDataPreprocessor
 from core.tcn_gait_model import create_gait_tcn_model, compile_gait_model
 from core.gait_training import GaitTrainer, GaitMetrics
+from core.performance_optimizer import PerformanceOptimizer, performance_timer
 from .gait_events import BasicGaitEvents
 
 # Configure logging
@@ -59,8 +60,19 @@ class GaitAnalysisPipeline:
         self.enable_realtime_visualization = config.get('enable_realtime_visualization', False)
         self.enable_gait_analysis = config.get('enable_gait_analysis', True)
         
+        # Performance optimization settings
+        self.performance_mode = config.get('performance_mode', 'balanced')
+        self.enable_optimizations = config.get('enable_optimizations', True)
+        
         # Create results directory
         os.makedirs(self.results_dir, exist_ok=True)
+        
+        # Initialize performance optimizer
+        if self.enable_optimizations:
+            self.performance_optimizer = PerformanceOptimizer(
+                performance_mode=self.performance_mode,
+                max_memory_mb=config.get('max_memory_mb', 2048)
+            )
         
         # Initialize components
         self.mediapipe_processor = None
@@ -73,6 +85,8 @@ class GaitAnalysisPipeline:
         logger.info(f"Features enabled: Pose Detection=Always, "
                    f"Real-time Visualization={self.enable_realtime_visualization}, "
                    f"Gait Analysis={self.enable_gait_analysis}")
+        logger.info(f"Performance mode: {self.performance_mode}, "
+                   f"Optimizations: {self.enable_optimizations}")
     
     def setup_mediapipe(self):
         """Setup MediaPipe processor for pose estimation."""
@@ -85,7 +99,9 @@ class GaitAnalysisPipeline:
             fps=self.config.get('fps', 30.0),
             model_complexity=self.config.get('model_complexity', 1),
             min_detection_confidence=self.config.get('min_detection_confidence', 0.5),
-            min_tracking_confidence=self.config.get('min_tracking_confidence', 0.5)
+            min_tracking_confidence=self.config.get('min_tracking_confidence', 0.5),
+            performance_mode=self.performance_mode,
+            enable_optimizations=self.enable_optimizations
         )
         
         logger.info("MediaPipe setup completed successfully")
@@ -266,14 +282,23 @@ class GaitAnalysisPipeline:
         logger.info("Starting model training...")
         
         try:
+            # Optimize training configuration if optimizations are enabled
+            training_config = {
+                'n_folds': self.config.get('n_folds', 5),
+                'epochs': self.config.get('epochs', 100),
+                'batch_size': self.config.get('batch_size', 32),
+                'validation_split': self.config.get('validation_split', 0.2),
+                'early_stopping_patience': self.config.get('early_stopping_patience', 15)
+            }
+            
+            if self.enable_optimizations:
+                training_config = self.performance_optimizer.get_optimized_training_config(training_config)
+                logger.info(f"Using optimized training config: {training_config}")
+            
             cv_results = self.trainer.train_with_cross_validation(
                 features=features,
                 labels=labels,
-                n_folds=self.config.get('n_folds', 5),
-                epochs=self.config.get('epochs', 100),
-                batch_size=self.config.get('batch_size', 32),
-                validation_split=self.config.get('validation_split', 0.2),
-                early_stopping_patience=self.config.get('early_stopping_patience', 15)
+                **training_config
             )
             
             logger.info("Model training completed successfully")
@@ -386,11 +411,40 @@ class GaitAnalysisPipeline:
                 return {"pose_detection_completed": True, "json_dirs": json_dirs}
             
             logger.info("Pipeline completed successfully!")
+            
+            # Generate performance report if optimizations are enabled
+            if self.enable_optimizations:
+                performance_report = self.performance_optimizer.get_performance_report()
+                self._save_performance_report(performance_report)
+            
             return {"pipeline_completed": True}
             
         except Exception as e:
             logger.error(f"Pipeline failed: {e}")
             raise
+        finally:
+            # Cleanup resources
+            self._cleanup()
+    
+    def _save_performance_report(self, performance_report: Dict[str, Any]):
+        """Save performance report to file."""
+        report_file = os.path.join(self.results_dir, 'performance_report.json')
+        try:
+            with open(report_file, 'w') as f:
+                json.dump(performance_report, f, indent=2)
+            logger.info(f"Performance report saved to {report_file}")
+        except Exception as e:
+            logger.warning(f"Failed to save performance report: {e}")
+    
+    def _cleanup(self):
+        """Cleanup resources and optimizations."""
+        if self.mediapipe_processor:
+            self.mediapipe_processor.cleanup()
+        
+        if self.enable_optimizations and hasattr(self, 'performance_optimizer'):
+            self.performance_optimizer.cleanup()
+        
+        logger.info("Pipeline cleanup completed")
     
     def run_pose_detection_only(self, video_paths: List[str]):
         """Run only pose detection without gait analysis."""
@@ -410,6 +464,11 @@ def create_default_config() -> Dict[str, Any]:
         # Feature toggles (pose detection is always enabled)
         'enable_realtime_visualization': False,
         'enable_gait_analysis': True,
+        
+        # Performance optimization settings
+        'performance_mode': 'balanced',  # 'fast', 'balanced', 'accurate'
+        'enable_optimizations': True,
+        'max_memory_mb': 2048,
         
         # MediaPipe settings
         'mediapipe_output_dir': 'mediapipe_output',
@@ -468,6 +527,14 @@ def main():
     parser.add_argument('--enable-gait-analysis', action='store_true', default=True,
                        help='Enable gait analysis feature')
     
+    # Performance optimization arguments
+    parser.add_argument('--performance-mode', choices=['fast', 'balanced', 'accurate'],
+                       default='balanced', help='Performance optimization mode')
+    parser.add_argument('--disable-optimizations', action='store_true',
+                       help='Disable performance optimizations')
+    parser.add_argument('--max-memory', type=int, default=2048,
+                       help='Maximum memory usage in MB')
+    
     args = parser.parse_args()
     
     # Load configuration
@@ -480,6 +547,11 @@ def main():
     # Update config with command line arguments
     config['task_type'] = args.task
     config['results_dir'] = args.output
+    
+    # Performance optimization settings
+    config['performance_mode'] = args.performance_mode
+    config['enable_optimizations'] = not args.disable_optimizations
+    config['max_memory_mb'] = args.max_memory
     
     # Handle feature toggles (pose detection is always enabled)
     if args.pose_detection_only:
@@ -518,11 +590,18 @@ def main():
         
         if results:
             metrics = results['overall_metrics']
-            print(f"\nPerformance Summary:")
-            print(f"Mean Accuracy: {metrics['mean_accuracy']:.4f} ± {metrics['std_accuracy']:.4f}")
-            print(f"F1 Score: {metrics['f1_score']:.4f}")
-            print(f"Precision: {metrics['precision']:.4f}")
-            print(f"Recall: {metrics['recall']:.4f}")
+                    print(f"\nPerformance Summary:")
+        print(f"Mean Accuracy: {metrics['mean_accuracy']:.4f} ± {metrics['std_accuracy']:.4f}")
+        print(f"F1 Score: {metrics['f1_score']:.4f}")
+        print(f"Precision: {metrics['precision']:.4f}")
+        print(f"Recall: {metrics['recall']:.4f}")
+        
+        # Print performance optimization summary
+        if config.get('enable_optimizations', False):
+            print(f"\nPerformance Optimization Summary:")
+            print(f"Mode: {config.get('performance_mode', 'balanced')}")
+            print(f"Memory Limit: {config.get('max_memory_mb', 2048)} MB")
+            print("Check performance_report.json for detailed metrics.")
         
         print("\nCheck the results directory for detailed analysis and visualizations.")
         
