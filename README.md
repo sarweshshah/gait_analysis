@@ -200,19 +200,19 @@ All results are organized in the `outputs/` directory:
 
 ```
 outputs/
-├── gait_analysis/     # Main gait analysis results
-│   ├── cv_metrics.json              # Cross-validation metrics
-│   ├── fold_scores.json             # Per-fold performance
-│   ├── training_histories.json      # Training curves data
-│   ├── classification_report.txt    # Detailed classification report
-│   ├── confusion_matrix.png         # Confusion matrix visualization
-│   ├── training_curves.png          # Training curves plot
-│   └── detailed_results.json        # Complete results summary
-├── mediapipe/         # MediaPipe pose detection outputs
-├── test_results/      # Testing and validation results
-├── logs/             # Application logs
-├── visualizations/   # Charts, graphs, and visual outputs
-└── models/           # Trained models and artifacts
+├── gait_analysis/                      # Main gait analysis results
+│   ├── cv_metrics.json                 # Cross-validation metrics
+│   ├── fold_scores.json                # Per-fold performance
+│   ├── training_histories.json         # Training curves data
+│   ├── classification_report.txt       # Detailed classification report
+│   ├── confusion_matrix.png            # Confusion matrix visualization
+│   ├── training_curves.png             # Training curves plot
+│   └── detailed_results.json           # Complete results summary
+├── mediapipe/                          # MediaPipe pose detection outputs
+├── test_results/                       # Testing and validation results
+├── logs/                               # Application logs
+├── visualizations/                     # Charts, graphs, and visual outputs
+└── models/                             # Trained models and artifacts
 ```
 
 ## 📚 Documentation

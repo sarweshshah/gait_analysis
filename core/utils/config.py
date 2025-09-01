@@ -88,7 +88,7 @@ class ConfigManager:
             "paths": {
                 "data_dir": "data",
                 "videos_dir": "videos",
-                "results_dir": "results",
+                "results_dir": "outputs/gait_analysis",
                 "models_dir": "data/models"
             }
         }
