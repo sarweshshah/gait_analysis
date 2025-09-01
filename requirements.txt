@@ -2,7 +2,7 @@
 # ================================
 
 # Core scientific computing
-numpy>=1.21.0
+numpy>=1.21.0,<2.0.0
 scipy>=1.7.0
 pandas>=1.3.0
 
@@ -12,7 +12,12 @@ torchvision>=0.10.0
 torchaudio>=0.9.0
 scikit-learn>=1.0.0
 
+# Deep learning (TensorFlow-based)
+# Note: TensorFlow 2.14.x is compatible with Python 3.9 and avoids JAX conflicts
+tensorflow>=2.14.0,<2.15.0
+
 # Computer vision and pose estimation
+# MediaPipe without JAX dependencies to avoid conflicts
 mediapipe>=0.10.0
 opencv-python>=4.5.0
 
@@ -33,3 +38,7 @@ argparse>=1.4.0
 pytest>=6.2.0
 black>=21.0.0
 flake8>=3.9.0
+
+# Explicitly exclude problematic packages
+# JAX is not needed for this project and causes conflicts
+# protobuf version is managed by TensorFlow

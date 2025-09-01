@@ -16,6 +16,15 @@ fi
 PYTHON_VERSION=$(python3 --version | cut -d' ' -f2)
 echo "✅ Found Python $PYTHON_VERSION"
 
+# Check Python version compatibility
+PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d'.' -f1)
+PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d'.' -f2)
+
+if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 7 ]); then
+    echo "❌ Python 3.7+ is required. Found Python $PYTHON_VERSION"
+    exit 1
+fi
+
 # Remove existing virtual environment if it exists
 if [ -d ".venv" ]; then
     echo "🗑️  Removing existing virtual environment..."
@@ -34,9 +43,41 @@ source .venv/bin/activate
 echo "⬆️  Upgrading pip..."
 pip install --upgrade pip
 
-# Install dependencies
-echo "📚 Installing dependencies..."
-pip install -r requirements.txt
+# Install core dependencies first (without conflicts)
+echo "📚 Installing core dependencies..."
+pip install numpy scipy pandas matplotlib seaborn pillow tqdm pathlib2 argparse
+
+# Install PyTorch
+echo "🔥 Installing PyTorch..."
+pip install torch torchvision torchaudio
+
+# Install scikit-learn
+echo "🤖 Installing scikit-learn..."
+pip install scikit-learn
+
+# Install OpenCV
+echo "👁️  Installing OpenCV..."
+pip install opencv-python
+
+# Install TensorFlow with specific version to avoid JAX conflicts
+echo "🧠 Installing TensorFlow (compatible version)..."
+pip install "tensorflow>=2.14.0,<2.15.0"
+
+# Install MediaPipe without JAX dependencies
+echo "📱 Installing MediaPipe..."
+pip install mediapipe --no-deps
+
+# Install remaining MediaPipe dependencies manually (excluding JAX)
+echo "📦 Installing MediaPipe dependencies..."
+pip install absl-py attrs flatbuffers protobuf sounddevice sentencepiece
+
+# Install development tools
+echo "🛠️  Installing development tools..."
+pip install pytest black flake8
+
+# Install remaining utilities
+echo "🔧 Installing utilities..."
+pip install imutils
 
 # Create necessary directories
 echo "📁 Creating necessary directories..."
@@ -46,6 +87,12 @@ mkdir -p videos/raw
 mkdir -p videos/sneak
 mkdir -p results
 mkdir -p mediapipe_output
+mkdir -p outputs/gait_analysis
+mkdir -p outputs/mediapipe
+mkdir -p outputs/test_results
+mkdir -p outputs/logs
+mkdir -p outputs/models
+mkdir -p outputs/visualizations
 
 # MediaPipe models are auto-downloaded on first use
 echo "🤖 MediaPipe models will be auto-downloaded on first use"
@@ -62,6 +109,6 @@ echo "  source .venv/bin/activate"
 echo ""
 echo "To run the gait analysis system:"
 echo "  source .venv/bin/activate"
-echo "  python usecases/gait_analysis/main_gait_analysis.py --help"
+echo "  python -m usecases.gait_analysis.main_gait_analysis --help"
 echo ""
 echo "For more information, see README_TCN_Gait_Analysis.md"

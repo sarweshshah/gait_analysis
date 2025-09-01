@@ -99,7 +99,6 @@ class GaitAnalysisPipeline:
         # Create unified pose processor
         self.pose_processor = UnifiedPoseProcessor(
             model_type=pose_model,
-            output_dir=self.config.get('pose_output_dir', 'outputs/mediapipe'),
             **processor_kwargs
         )
         
