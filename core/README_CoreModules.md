@@ -1,59 +1,56 @@
 # Core System Modules
 
-This directory contains the core modules that power the gait analysis system. These modules provide the fundamental functionality for pose estimation, data preprocessing, model training, and evaluation.
+This document describes the core modules of the Gait Analysis System, providing a comprehensive overview of the system architecture and implementation details.
 
-## Module Overview
+## Overview
+
+The core modules provide the foundation for the gait analysis system, implementing:
+
+- **Pose Estimation**: Unified pose processor manager supporting multiple pose estimation backends
+- **Data Processing**: Advanced data preprocessing with gap-filling, filtering, and normalization
+- **Machine Learning**: Temporal Convolutional Network (TCN) architecture for gait analysis
+- **Training Pipeline**: Cross-validation training with comprehensive evaluation
+- **Utilities**: Configuration management and logging systems
+
+## Module Structure
 
 ### Pose Estimation
-- **`pose_processor_manager.py`** - Unified pose processor manager supporting MediaPipe and MeTRAbs
+
+- **`pose_processor_manager.py`** - Unified pose processor manager supporting multiple pose estimation backends
 - **`mediapipe_integration.py`** - MediaPipe pose estimation integration with BODY_25 keypoint mapping
-- **`metrabs_integration.py`** - MeTRAbs pose estimation integration with high accuracy
 
 ### Data Processing
+
 - **`gait_data_preprocessing.py`** - Advanced data preprocessing with gap-filling, filtering, and normalization
 
 ### Machine Learning
+
 - **`tcn_gait_model.py`** - Temporal Convolutional Network architecture for gait analysis
 - **`gait_training.py`** - Training pipeline with cross-validation and comprehensive evaluation
 
 ### Utilities
+
 - **`utils/config.py`** - Configuration management system
 - **`utils/logging_config.py`** - Centralized logging configuration
+- **`utils/constants.py`** - Core constants and enums
 
-## Module Details
-
-### gait_data_preprocessing.py
-
-**Purpose**: Transforms raw MediaPipe pose data into clean, normalized features suitable for machine learning.
-
-**Key Features**:
-- Gap-filling using cubic spline interpolation
-- Butterworth low-pass filtering (6 Hz cutoff)
-- Coordinate normalization and scaling
-- Feature engineering (joint angles, velocities)
-- Fixed-length window creation for TCN input
-
-**Usage**:
-```python
-from core.gait_data_preprocessing import GaitDataPreprocessor
-
-preprocessor = GaitDataPreprocessor()
-features, labels = preprocessor.process_pose_data(pose_data)
-```
+## Detailed Module Documentation
 
 ### pose_processor_manager.py
 
-**Purpose**: Provides a unified interface for different pose estimation models with easy switching between MediaPipe and MeTRAbs.
+**Purpose**: Provides a unified interface for different pose estimation models with easy switching between different pose estimation backends.
 
 **Key Features**:
+
 - **UnifiedPoseProcessor**: Single interface for all pose models
 - **PoseProcessorManager**: Manager class for creating pose processors
 - **PoseProcessor**: Abstract base class for pose processors
 - Model switching capabilities
 - Consistent API regardless of underlying model
-- Support for MediaPipe and MeTRAbs
+- Support for multiple pose estimation backends
 
 **Usage**:
+
 ```python
 from core.pose_processor_manager import UnifiedPoseProcessor
 
@@ -61,8 +58,8 @@ from core.pose_processor_manager import UnifiedPoseProcessor
 processor = UnifiedPoseProcessor(model_type='mediapipe')
 pose_data = processor.process_video("video.mp4")
 
-# Switch to MeTRAbs
-processor.switch_model('metrabs')
+# Switch to another model (when available)
+processor.switch_model('other_model')
 pose_data = processor.process_video("video.mp4")
 ```
 
@@ -71,6 +68,7 @@ pose_data = processor.process_video("video.mp4")
 **Purpose**: Handles video processing with MediaPipe pose estimation and converts output to BODY_25 format.
 
 **Key Features**:
+
 - MediaPipe pose estimation with 33 landmarks
 - BODY_25 keypoint mapping (25 keypoints including foot landmarks)
 - Confidence-based filtering
@@ -78,6 +76,7 @@ pose_data = processor.process_video("video.mp4")
 - Batch video processing
 
 **Usage**:
+
 ```python
 from core.mediapipe_integration import MediaPipeProcessor
 
@@ -85,23 +84,31 @@ processor = MediaPipeProcessor()
 pose_data = processor.process_video("video.mp4")
 ```
 
-### metrabs_integration.py
+### gait_data_preprocessing.py
 
-**Purpose**: Handles video processing with MeTRAbs pose estimation for high-accuracy pose estimation.
+**Purpose**: Advanced data preprocessing for gait analysis, including gap-filling, filtering, and feature extraction.
 
 **Key Features**:
-- MeTRAbs pose estimation with test-time augmentation
-- BODY_25 compatible output format
-- GPU acceleration support
-- Batch processing capabilities
-- High accuracy pose estimation
+
+- Gap-filling using cubic spline interpolation
+- Butterworth low-pass filtering (6 Hz cutoff)
+- Keypoint normalization and standardization
+- Feature extraction for gait analysis
+- Confidence-based filtering
+- BODY_25 keypoint format support
 
 **Usage**:
-```python
-from core.metrabs_integration import MeTRAbsProcessor
 
-processor = MeTRAbsProcessor()
-pose_data = processor.process_video("video.mp4")
+```python
+from core.gait_data_preprocessing import GaitDataPreprocessor
+
+preprocessor = GaitDataPreprocessor(
+    confidence_threshold=0.3,
+    filter_cutoff=6.0,
+    window_size=30
+)
+
+processed_data = preprocessor.preprocess_pose_data(pose_data)
 ```
 
 ### tcn_gait_model.py
@@ -109,6 +116,7 @@ pose_data = processor.process_video("video.mp4")
 **Purpose**: Implements Temporal Convolutional Network architecture optimized for gait analysis tasks.
 
 **Key Features**:
+
 - Dilated causal convolutions for temporal modeling
 - Residual connections and batch normalization
 - Support for both phase and event detection
@@ -116,6 +124,7 @@ pose_data = processor.process_video("video.mp4")
 - TensorFlow/Keras implementation
 
 **Usage**:
+
 ```python
 from core.tcn_gait_model import TCNGaitModel
 
@@ -129,148 +138,100 @@ model = TCNGaitModel(
 
 ### gait_training.py
 
-**Purpose**: Provides comprehensive training and evaluation pipeline with cross-validation.
+**Purpose**: Comprehensive training pipeline with cross-validation and evaluation for gait analysis models.
 
 **Key Features**:
+
 - Stratified k-fold cross-validation
 - Early stopping and learning rate scheduling
-- Gait-specific evaluation metrics
+- Comprehensive evaluation metrics
 - Model checkpointing and result visualization
-- Comprehensive performance analysis
+- Support for multiple task types
 
 **Usage**:
+
 ```python
 from core.gait_training import GaitTrainer
 
-trainer = GaitTrainer(config)
-results = trainer.train_with_cross_validation(features, labels)
+trainer = GaitTrainer(
+    data_preprocessor=preprocessor,
+    model_config=model_config,
+    task_type='phase_detection'
+)
+
+results = trainer.train_and_evaluate(train_data, val_data)
 ```
 
 ### utils/config.py
 
-**Purpose**: Centralized configuration management for all system components.
+**Purpose**: Configuration management system for the gait analysis pipeline.
 
 **Key Features**:
+
 - JSON-based configuration files
 - Default parameter management
-- Environment-specific overrides
-- Validation and type checking
+- Environment-specific configurations
+- Validation and error handling
+- Type-safe configuration access
 
 **Usage**:
+
 ```python
 from core.utils.config import ConfigManager
 
-config = ConfigManager.load_config("configs/gait_analysis.json")
+config = ConfigManager('configs/gait_analysis.json')
+fps = config.get('fps', 30.0)
 ```
 
 ### utils/logging_config.py
 
-**Purpose**: Standardized logging configuration across all modules.
+**Purpose**: Centralized logging configuration for the entire system.
 
 **Key Features**:
+
 - Structured logging with timestamps
 - Multiple output handlers (console, file)
 - Configurable log levels
-- Module-specific loggers
+- Performance monitoring
+- Error tracking and reporting
 
 **Usage**:
+
 ```python
 from core.utils.logging_config import setup_logging
 
-logger = setup_logging(__name__)
+logger = setup_logging('gait_analysis')
 logger.info("Processing started")
 ```
 
-## Integration with Use Cases
-
-The core modules are designed to be imported and used by specific use case implementations in the `usecases/` directory:
-
-```python
-# Example usage in usecases/gait_analysis/main_gait_analysis.py
-from core.pose_processor_manager import UnifiedPoseProcessor
-from core.gait_data_preprocessing import GaitDataPreprocessor
-from core.tcn_gait_model import TCNGaitModel
-from core.gait_training import GaitTrainer
-
-# Unified pose processor usage
-processor = UnifiedPoseProcessor(model_type='mediapipe')
-pose_data = processor.process_video("video.mp4")
-```
-
-## Conventions
-
-To keep the core APIs simple and readable, the system uses plain string literals for simple identifiers:
-
-- Task types: 'phase_detection', 'event_detection'
-- Event dictionary keys: 'heel_strikes', 'toe_offs', 'flat_foots', 'heel_offs'
-- Sides and labels: 'left', 'right', etc.
-- Pose models: 'mediapipe', 'metrabs'
-
-Only core domain names like event names and sides are kept as centralized constants in `core/utils/constants.py` to avoid typos. Do not introduce constants for simple dictionary keys or task type strings.
-
-## Core Constants
-
-Shared domain names and labels are defined in `core/utils/constants.py`:
-
-```python
-from core.utils.constants import (
-    SIDES, LEFT, RIGHT,
-    EVENT_TYPES, HEEL_STRIKE, TOE_OFF,
-    PHASE_LABELS_4, get_phase_labels, TASK_TYPES
-)
-
-print(SIDES)               # ['left', 'right']
-print(EVENT_TYPES)         # ['heel_strike', 'toe_off'] (default basic set)
-print(get_phase_labels(4)) # ['stance_left', 'swing_left', 'stance_right', 'swing_right']
-print(TASK_TYPES)          # ['phase_detection', 'event_detection']
-```
-
-Note: Dictionary keys and task types should be used as string literals in code. Constants here are for event names, sides, and label sets.
-
-## Configuration
-
-Core modules use configuration files from the `configs/` directory:
-
-- **`configs/default.json`** - Default system parameters
-- **`configs/gait_analysis.json`** - Configuration for both models
-
-## Dependencies
+## System Requirements
 
 Core modules require:
+
 - MediaPipe >= 0.10.0 (for MediaPipe pose estimation)
-- PyTorch >= 1.9.0 (for MeTRAbs pose estimation, optional)
-- MeTRAbs (optional, for high-accuracy pose estimation)
+- PyTorch >= 1.9.0 (for future model support, optional)
 - TensorFlow >= 2.8.0
 - NumPy, SciPy, Pandas
-- OpenCV for video processing
-- Scikit-learn for evaluation metrics
-
-## Development Guidelines
-
-When extending core modules:
-
-1. **Maintain backward compatibility** - Existing use cases should continue to work
-2. **Follow configuration patterns** - Use ConfigManager for all parameters
-3. **Add comprehensive logging** - Use the centralized logging system
-4. **Include unit tests** - Test core functionality thoroughly
-5. **Document public APIs** - Maintain clear docstrings and type hints
-
-## Performance Considerations
-
-- **GPU Acceleration**: Core modules support CUDA when available
-- **Memory Management**: Efficient handling of large video datasets
-- **Batch Processing**: Optimized for processing multiple videos
-- **Caching**: Preprocessed data caching to avoid recomputation
+- OpenCV >= 4.5.0
+- Matplotlib, Seaborn (for visualization)
 
 ## Error Handling
 
 Core modules implement robust error handling:
+
 - Graceful degradation for missing pose data
 - Validation of input parameters
-- Clear error messages with suggested solutions
-- Automatic fallback to CPU processing if GPU fails
+- Comprehensive error messages
+- Fallback mechanisms for failed operations
+- Logging of errors for debugging
 
-For detailed usage examples and advanced configuration, see the documentation in the `docs/` directory and the use case implementations in `usecases/`.
+## Performance Considerations
+
+- **Memory Management**: Efficient data structures and garbage collection
+- **GPU Utilization**: Automatic GPU detection and utilization
+- **Batch Processing**: Support for processing multiple videos
+- **Caching**: Intelligent caching of processed data
+- **Parallel Processing**: Multi-threading where appropriate
 
 ## Related Documentation
 
@@ -278,5 +239,19 @@ For more information about the project and its evolution:
 
 - **Project Changelog**: [docs/README_Changelog.md](../docs/README_Changelog.md) - Complete project history and changes
 - **Installation Guide**: [docs/README_Installation.md](../docs/README_Installation.md) - Comprehensive installation instructions
-- **MeTRAbs Integration**: [docs/README_MeTRAbs_Integration.md](../docs/README_MeTRAbs_Integration.md) - Detailed MeTRAbs guide
 - **TCN System Documentation**: [docs/README_TCN_Gait_Analysis.md](../docs/README_TCN_Gait_Analysis.md) - Technical system documentation
+- **Real-time Visualization**: [docs/README_RealTime_Visualization.md](../docs/README_RealTime_Visualization.md) - Real-time visualization guide
+
+## Contributing
+
+To extend the core modules:
+
+1. **Follow the existing patterns** for new pose processors
+2. **Implement abstract base classes** for consistency
+3. **Add comprehensive tests** for new functionality
+4. **Update documentation** for any new features
+5. **Maintain backward compatibility** where possible
+
+## License
+
+This project is part of the Gait Analysis System. See the main LICENSE file for details.

@@ -123,9 +123,9 @@ BACKGROUND_SUBTRACTION = {
 # Output directories
 OUTPUT_DIRS = {
     "results": "results",
-    "videos": "results/videos",
-    "images": "results/images",
-    "logs": "results/logs"
+    "videos": "outputs/videos",
+    "images": "outputs/images",
+    "logs": "outputs/logs"
 }
 
 # Create output directories

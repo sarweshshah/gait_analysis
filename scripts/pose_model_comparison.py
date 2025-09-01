@@ -4,11 +4,11 @@ Pose Model Comparison Script
 ===========================
 
 This script demonstrates how to compare and switch between different pose estimation models
-(MediaPipe and MeTRAbs) for gait analysis.
+for gait analysis.
 
 Usage:
     python pose_model_comparison.py --video path/to/video.mp4 --compare
-    python pose_model_comparison.py --video path/to/video.mp4 --model metrabs
+    python pose_model_comparison.py --video path/to/video.mp4 --model mediapipe
 """
 
 import os
@@ -183,19 +183,12 @@ def main():
         description='Compare and switch between pose estimation models'
     )
     
-    parser.add_argument('--video', '-v', required=True,
-                       help='Path to video file to process')
-    parser.add_argument('--model', '-m', choices=['mediapipe', 'metrabs'],
-                       default='mediapipe',
-                       help='Pose model to use (default: mediapipe)')
-    parser.add_argument('--compare', '-c', action='store_true',
-                       help='Compare all available models')
-    parser.add_argument('--switch-demo', '-s', action='store_true',
-                       help='Demonstrate model switching')
-    parser.add_argument('--info', '-i', action='store_true',
-                       help='Show information about available models')
-    parser.add_argument('--output', '-o', default='pose_output',
-                       help='Output directory (default: pose_output)')
+    parser.add_argument('--video', '-v', required=True, help='Path to video file to process')
+    parser.add_argument('--model', '-m', choices=['mediapipe'], default='mediapipe', help='Pose model to use (default: mediapipe)')
+    parser.add_argument('--compare', '-c', action='store_true', help='Compare all available models')
+    parser.add_argument('--switch-demo', '-s', action='store_true', help='Demonstrate model switching')
+    parser.add_argument('--info', '-i', action='store_true', help='Show information about available models')
+    parser.add_argument('--output', '-o', default='outputs/mediapipe', help='Output directory (default: outputs/mediapipe)')
     
     args = parser.parse_args()
     

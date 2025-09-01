@@ -13,7 +13,7 @@ import json
 import cv2
 import numpy as np
 import mediapipe as mp
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 import logging
 from pathlib import Path
 from datetime import datetime
@@ -34,7 +34,7 @@ class MediaPipeProcessor:
     """
     
     def __init__(self, 
-                 output_dir: str = 'mediapipe_output',
+                 output_dir: str = 'outputs/mediapipe',
                  fps: float = 30.0,
                  static_image_mode: bool = False,
                  model_complexity: int = 1,
@@ -447,6 +447,35 @@ class MediaPipeProcessor:
             self.mp_pose.POSE_CONNECTIONS,
             landmark_drawing_spec=self.mp_drawing_styles.get_default_pose_landmarks_style()
         )
+    
+    def get_model_info(self) -> Dict[str, Any]:
+        """
+        Get information about the MediaPipe model.
+        
+        Returns:
+            Dictionary with model information
+        """
+        return {
+            'name': 'MediaPipe Pose',
+            'description': 'Lightweight, real-time pose estimation by Google',
+            'landmarks': 33,
+            'keypoints': 25,  # After conversion to BODY_25
+            'advantages': [
+                'Fast and lightweight',
+                'Good for real-time applications',
+                'Easy to use and integrate',
+                'Works well on CPU'
+            ],
+            'disadvantages': [
+                'Lower accuracy compared to deep learning models',
+                'Limited to 2D pose estimation'
+            ],
+            'best_for': [
+                'Real-time applications',
+                'Mobile/edge devices',
+                'Quick prototyping'
+            ]
+        }
     
     def cleanup(self):
         """Clean up MediaPipe resources."""

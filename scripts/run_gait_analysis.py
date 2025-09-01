@@ -49,7 +49,7 @@ Examples:
     parser.add_argument(
         "--output", 
         type=str, 
-        default="results/gait_analysis",
+        default="outputs/gait_analysis",
         help="Output directory for results"
     )
     
@@ -80,7 +80,7 @@ Examples:
     args = parser.parse_args()
     
     # Setup logging
-    log_file = f"results/logs/gait_analysis_{Path(args.input).stem}.log"
+    log_file = f"outputs/logs/gait_analysis_{Path(args.input).stem}.log"
     logger = setup_logging(log_file=log_file, log_level=args.log_level)
     
     try:

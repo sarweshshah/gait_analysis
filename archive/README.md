@@ -1,12 +1,14 @@
 # Archived Files - Legacy Gait Analysis System
-This directory contains legacy scripts and documentation from the initial development phase of the gait analysis system. 
+
+This directory contains legacy scripts and documentation from the initial development phase of the gait analysis system.
 These scripts use OpenPose for pose estimation and provide basic visualization and detection capabilities.
 
 ## Archived Files
 
 ### 1. poseTrailVideo.py
+
 - **Purpose**: Shows pose keypoints with trail effect over time
-- **Features**: 
+- **Features**:
   - Real-time pose keypoint detection
   - Trail visualization showing keypoint movement
   - COCO format (18 keypoints)
@@ -14,6 +16,7 @@ These scripts use OpenPose for pose estimation and provide basic visualization a
 - **Output**: Real-time visualization window
 
 ### 2. poseDetectVideo.py
+
 - **Purpose**: Shows pose detection with skeleton overlay
 - **Features**:
   - Full skeleton visualization
@@ -24,6 +27,7 @@ These scripts use OpenPose for pose estimation and provide basic visualization a
 - **Output**: Real-time skeleton overlay
 
 ### 3. hipsTrailVideo.py
+
 - **Purpose**: Shows hip keypoints with trail effect
 - **Features**:
   - Focused on hip keypoint tracking
@@ -33,6 +37,7 @@ These scripts use OpenPose for pose estimation and provide basic visualization a
 - **Output**: Real-time hip trail visualization
 
 ### 4. poseAndObjectDetectVideo.py
+
 - **Purpose**: Shows both pose and object detection
 - **Features**:
   - Combined pose estimation and object detection
@@ -44,6 +49,7 @@ These scripts use OpenPose for pose estimation and provide basic visualization a
 ## Setup Instructions
 
 ### Prerequisites
+
 - Python 3.7 or higher
 - OpenCV with DNN support
 - Internet connection for downloading model files
@@ -53,6 +59,7 @@ These scripts use OpenPose for pose estimation and provide basic visualization a
 #### Option 1: Automated Setup (Recommended)
 
 **For Linux/Mac:**
+
 ```bash
 cd archive
 chmod +x setup_environment.sh
@@ -60,6 +67,7 @@ chmod +x setup_environment.sh
 ```
 
 **For Windows:**
+
 ```cmd
 cd archive
 setup_environment.bat
@@ -68,11 +76,13 @@ setup_environment.bat
 #### Option 2: Manual Setup
 
 1. **Install Python dependencies:**
+
    ```bash
    pip3 install -r requirements.txt
    ```
 
 2. **Download model files:**
+
    - OpenPose COCO model (~200MB):
      - `pose_deploy_linevec.prototxt`
      - `pose_iter_440000.caffemodel`
@@ -87,7 +97,7 @@ setup_environment.bat
    │   ├── pose/coco/
    │   └── object_detection/
    ├── data/
-   └── results/
+   └── outputs/
    ```
 
 ## Usage
@@ -124,6 +134,7 @@ python3 poseAndObjectDetectVideo.py
 ### Configuration
 
 Edit `config.py` to customize:
+
 - Video file paths
 - Detection thresholds
 - Output settings
@@ -153,7 +164,7 @@ archive/
 ├── videos/                     # Input video files
 │   ├── raw/                    # Raw video files
 │   └── sneak/                  # Sneak gait videos
-└── results/                    # Output files
+└── outputs/                    # Output files (moved to main project outputs/)
 ```
 
 ## Troubleshooting
@@ -161,14 +172,17 @@ archive/
 ### Common Issues
 
 1. **"Model files not found"**
+
    - Run the setup script to download model files
    - Check that model files are in the correct directories
 
 2. **"Video file not found"**
+
    - Place your video files in the `videos/raw/` or `videos/sneak/` directory
    - Update the video path in the script or use `--video` parameter
 
 3. **"OpenCV DNN module not available"**
+
    - Install `opencv-contrib-python` instead of `opencv-python`
    - Ensure you have the full OpenCV installation
 
@@ -193,8 +207,8 @@ These files were archived because:
 
 ### If you need functionality from these archived files, consider:
 
-1. **Unified Pose Processor**: Use the current system's unified pose estimation with MediaPipe and MeTRAbs
-2. **Modern Alternatives**: The current system supports both MediaPipe (fast) and MeTRAbs (accurate)
+1. **Unified Pose Processor**: Use the current system's unified pose estimation with multiple pose estimation backends
+2. **Modern Alternatives**: The current system supports MediaPipe (fast) and can easily accommodate additional models
 3. **Real-time Visualization**: Use the current real-time pose visualization tool
 4. **Custom Implementation**: Adapt the visualization logic to work with the unified pose processor
 

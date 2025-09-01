@@ -16,9 +16,6 @@ scikit-learn>=1.0.0
 mediapipe>=0.10.0
 opencv-python>=4.5.0
 
-# MeTRAbs (install separately: pip install git+https://github.com/isarandi/metrabs.git)
-# metrabs>=0.1.0
-
 # Data visualization
 matplotlib>=3.5.0
 seaborn>=0.11.0

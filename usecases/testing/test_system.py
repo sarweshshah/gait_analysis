@@ -224,8 +224,7 @@ def test_training_pipeline():
             'num_filters': 32,  # Smaller for testing
             'kernel_size': 3,
             'num_blocks': 3,
-            'dropout_rate': 0.2,
-            'learning_rate': 0.001
+            'dropout_rate': 0.2
         }
         
         trainer = GaitTrainer(
@@ -277,7 +276,7 @@ def test_training_pipeline():
         return False
 
 def test_pose_processor_integration():
-    """Test pose processor integration setup for both MediaPipe and MeTRAbs."""
+    """Test pose processor integration setup for pose estimation models."""
     logger.info("Testing pose processor integration...")
     
     if PoseProcessorManager is None:
@@ -289,7 +288,7 @@ def test_pose_processor_integration():
         logger.info("Testing MediaPipe processor...")
         mediapipe_processor = PoseProcessorManager.create_processor(
             model_type='mediapipe',
-            output_dir='test_pose_output'
+            output_dir='outputs/test_results'
         )
         
         # Test MediaPipe keypoint mapping
@@ -300,25 +299,6 @@ def test_pose_processor_integration():
         # Clean up MediaPipe processor
         mediapipe_processor.cleanup()
         
-        # Test MeTRAbs processor (may fail if not installed)
-        logger.info("Testing MeTRAbs processor...")
-        try:
-            metrabs_processor = PoseProcessorManager.create_processor(
-                model_type='metrabs',
-                output_dir='test_pose_output'
-            )
-            
-            # Test MeTRAbs keypoint mapping
-            model_info = metrabs_processor.get_model_info()
-            assert model_info['landmarks'] > 0
-            logger.info("✓ MeTRAbs pose processor keypoint mapping works")
-            
-            # Clean up MeTRAbs processor
-            metrabs_processor.cleanup()
-            
-        except Exception as e:
-            logger.warning(f"⚠ MeTRAbs processor creation failed (expected if not installed): {e}")
-        
         # Test UnifiedPoseProcessor with model switching
         logger.info("Testing UnifiedPoseProcessor with model switching...")
         try:
@@ -327,7 +307,7 @@ def test_pose_processor_integration():
             # Start with MediaPipe
             unified_processor = UnifiedPoseProcessor(
                 model_type='mediapipe',
-                output_dir='test_pose_output'
+                output_dir='outputs/test_results'
             )
             
             # Test model info
@@ -335,25 +315,16 @@ def test_pose_processor_integration():
             assert info['name'] == 'MediaPipe Pose'
             logger.info("✓ UnifiedPoseProcessor MediaPipe initialization works")
             
-            # Try to switch to MeTRAbs
-            try:
-                unified_processor.switch_model('metrabs')
-                info = unified_processor.get_model_info()
-                assert info['name'] == 'MeTRAbs Pose'
-                logger.info("✓ UnifiedPoseProcessor model switching to MeTRAbs works")
-            except Exception as e:
-                logger.warning(f"⚠ MeTRAbs switching failed (expected if not installed): {e}")
-            
             # Clean up unified processor
             unified_processor.cleanup()
             
         except Exception as e:
             logger.warning(f"⚠ UnifiedPoseProcessor test failed: {e}")
         
-        # Clean up output directory
-        if os.path.exists('test_pose_output'):
+                # Clean up output directory
+        if os.path.exists('outputs/test_results'):
             import shutil
-            shutil.rmtree('test_pose_output')
+            shutil.rmtree('outputs/test_results')
         
         return True
         
@@ -451,7 +422,7 @@ def main():
         ("Data Preprocessing", test_data_preprocessing),
         ("TCN Model", test_tcn_model),
         ("Training Pipeline", test_training_pipeline),
-        ("Pose Processor Integration (MediaPipe + MeTRAbs)", test_pose_processor_integration),
+        ("Pose Processor Integration", test_pose_processor_integration),
         ("Gait Metrics", test_metrics),
         ("Configuration", test_configuration)
     ]

@@ -3,7 +3,7 @@
 Test Script for Pose Models
 ==========================
 
-This script tests the integration of both MediaPipe and MeTRAbs pose estimation models.
+This script tests the integration of pose estimation models.
 """
 
 import os
@@ -47,15 +47,6 @@ def test_processor_creation():
         print("✓ MediaPipe processor created successfully")
         mediapipe_processor.cleanup()
         
-        # Test MeTRAbs processor (may fail if not installed)
-        print("Creating MeTRAbs processor...")
-        try:
-            metrabs_processor = UnifiedPoseProcessor(model_type='metrabs')
-            print("✓ MeTRAbs processor created successfully")
-            metrabs_processor.cleanup()
-        except Exception as e:
-            print(f"⚠ MeTRAbs processor creation failed (expected if not installed): {e}")
-        
         return True
         
     except Exception as e:
@@ -74,17 +65,6 @@ def test_model_switching():
         # Get model info
         info = processor.get_model_info()
         print(f"  Model: {info['name']}")
-        
-        # Try to switch to MeTRAbs
-        try:
-            processor.switch_model('metrabs')
-            print("✓ Switched to MeTRAbs")
-            
-            info = processor.get_model_info()
-            print(f"  Model: {info['name']}")
-            
-        except Exception as e:
-            print(f"⚠ MeTRAbs switching failed (expected if not installed): {e}")
         
         processor.cleanup()
         return True
@@ -148,9 +128,9 @@ def main():
     print("="*60)
     print("\nSummary:")
     print("- MediaPipe should work if mediapipe is installed")
-    print("- MeTRAbs will work if metrabs and torch are installed")
-    print("- Both models provide the same interface for easy switching")
-    print("- Video processing test requires a video file in the data directory")
+    print("- Additional models can be easily added to the system")
+    print("- All models provide the same interface for easy switching")
+    print("- Video processing test requires a video file in the videos/raw directory")
 
 if __name__ == "__main__":
     main()

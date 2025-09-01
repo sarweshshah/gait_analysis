@@ -32,7 +32,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('gait_analysis.log'),
+        logging.FileHandler('outputs/logs/gait_analysis.log'),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -52,7 +52,7 @@ class GaitAnalysisPipeline:
             config: Configuration dictionary with feature toggles
         """
         self.config = config
-        self.results_dir = config.get('results_dir', 'gait_analysis_results')
+        self.results_dir = config.get('results_dir', 'outputs/gait_analysis')
         
         # Feature toggles (pose detection is always enabled)
         self.enable_pose_detection = True  # Always enabled - fundamental requirement
@@ -87,21 +87,11 @@ class GaitAnalysisPipeline:
         if pose_model == 'mediapipe':
             # MediaPipe specific configuration
             processor_kwargs = {
-                'output_dir': self.config.get('mediapipe_output_dir', 'mediapipe_output'),
+                'output_dir': self.config.get('mediapipe_output_dir', 'outputs/mediapipe'),
                 'fps': self.config.get('fps', 30.0),
                 'model_complexity': self.config.get('model_complexity', 1),
                 'min_detection_confidence': self.config.get('min_detection_confidence', 0.5),
                 'min_tracking_confidence': self.config.get('min_tracking_confidence', 0.5)
-            }
-        elif pose_model == 'metrabs':
-            # MeTRAbs specific configuration
-            processor_kwargs = {
-                'output_dir': self.config.get('metrabs_output_dir', 'metrabs_output'),
-                'fps': self.config.get('fps', 30.0),
-                'model_name': pose_config.get('model_name', 'metrabs_4x_512'),
-                'device': pose_config.get('device', 'auto'),
-                'batch_size': pose_config.get('batch_size', 1),
-                'num_aug': pose_config.get('num_aug', 1)
             }
         else:
             raise ValueError(f"Unsupported pose model: {pose_model}")
@@ -109,7 +99,7 @@ class GaitAnalysisPipeline:
         # Create unified pose processor
         self.pose_processor = UnifiedPoseProcessor(
             model_type=pose_model,
-            output_dir=self.config.get('pose_output_dir', 'pose_output'),
+            output_dir=self.config.get('pose_output_dir', 'outputs/mediapipe'),
             **processor_kwargs
         )
         
@@ -437,24 +427,15 @@ def create_default_config() -> Dict[str, Any]:
         'enable_gait_analysis': True,
         
         # Pose model settings
-        'pose_model': 'mediapipe',  # 'mediapipe' or 'metrabs'
-        'pose_output_dir': 'pose_output',
+        'pose_model': 'mediapipe',  # 'mediapipe' or other supported models
+        'pose_output_dir': 'outputs/mediapipe',
         'fps': 30.0,
         
         # MediaPipe settings
-        'mediapipe_output_dir': 'mediapipe_output',
+        'mediapipe_output_dir': 'outputs/mediapipe',
         'model_complexity': 1,  # 0, 1, or 2
         'min_detection_confidence': 0.5,
         'min_tracking_confidence': 0.5,
-        
-        # MeTRAbs settings
-        'metrabs_output_dir': 'metrabs_output',
-        'pose_config': {
-            'model_name': 'metrabs_4x_512',  # 'metrabs_4x_512', 'metrabs_4x_1024'
-            'device': 'auto',  # 'auto', 'cpu', 'cuda'
-            'batch_size': 1,
-            'num_aug': 1
-        },
         
         # Data preprocessing settings
         'confidence_threshold': 0.3,
@@ -480,33 +461,24 @@ def create_default_config() -> Dict[str, Any]:
         'early_stopping_patience': 15,
         
         # Output settings
-        'results_dir': 'gait_analysis_results'
+        'results_dir': 'outputs/gait_analysis'
     }
 
 def main():
     """Main function for command-line execution."""
     parser = argparse.ArgumentParser(description='Complete Gait Analysis Pipeline')
-    parser.add_argument('--videos', '-v', required=True, nargs='+', 
-                       help='Video files to process')
-    parser.add_argument('--labels', '-l', nargs='+', type=int,
-                       help='Labels for each video (optional)')
+    parser.add_argument('--videos', '-v', required=True, nargs='+', help='Video files to process')
+    parser.add_argument('--labels', '-l', nargs='+', type=int, help='Labels for each video (optional)')
     parser.add_argument('--config', '-c', help='Configuration file (JSON)')
-    parser.add_argument('--task', choices=['phase_detection', 'event_detection'],
-                       default='phase_detection', help='Analysis task type')
-    parser.add_argument('--output', '-o', default='gait_analysis_results',
-                       help='Output directory for results')
-    parser.add_argument('--pose-model', choices=['mediapipe', 'metrabs'],
-                       default='mediapipe', help='Pose estimation model to use')
+    parser.add_argument('--task', choices=['phase_detection', 'event_detection'], default='phase_detection', help='Analysis task type')
+    parser.add_argument('--output', '-o', default='outputs/gait_analysis', help='Output directory for results')
+    parser.add_argument('--pose-model', choices=['mediapipe'], default='mediapipe', help='Pose estimation model to use')
     
     # Feature toggle arguments
-    parser.add_argument('--pose-detection-only', action='store_true',
-                       help='Run only pose detection without gait analysis')
-    parser.add_argument('--with-visualization', action='store_true',
-                       help='Run pose detection with real-time visualization')
-    parser.add_argument('--enable-visualization', action='store_true',
-                       help='Enable real-time visualization feature')
-    parser.add_argument('--enable-gait-analysis', action='store_true', default=True,
-                       help='Enable gait analysis feature')
+    parser.add_argument('--pose-detection-only', action='store_true', help='Run only pose detection without gait analysis')
+    parser.add_argument('--with-visualization', action='store_true', help='Run pose detection with real-time visualization')
+    parser.add_argument('--enable-visualization', action='store_true', help='Enable real-time visualization feature')
+    parser.add_argument('--enable-gait-analysis', action='store_true', default=True, help='Enable gait analysis feature')
     
     args = parser.parse_args()
     

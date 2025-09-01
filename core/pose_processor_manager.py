@@ -3,7 +3,7 @@ Pose Processor Manager
 ====================
 
 This module provides a unified interface for different pose estimation models,
-allowing easy switching between MediaPipe and MeTRAbs.
+allowing easy switching between different pose estimation backends.
 
 Author: Gait Analysis System
 """
@@ -46,12 +46,11 @@ class PoseProcessor(ABC):
 class PoseProcessorManager:
     """
     Manager class for creating pose processors.
-    Supports MediaPipe and MeTRAbs with unified interface.
+    Supports multiple pose estimation backends with unified interface.
     """
     
     AVAILABLE_MODELS = {
-        'mediapipe': 'MediaPipe Pose',
-        'metrabs': 'MeTRAbs Pose'
+        'mediapipe': 'MediaPipe Pose'
     }
     
     @staticmethod
@@ -60,7 +59,7 @@ class PoseProcessorManager:
         Create a pose processor instance.
         
         Args:
-            model_type: Type of pose model ('mediapipe' or 'metrabs')
+            model_type: Type of pose model ('mediapipe' or other supported models)
             **kwargs: Additional arguments for the processor
             
         Returns:
@@ -74,10 +73,6 @@ class PoseProcessorManager:
         if model_type == 'mediapipe':
             from .mediapipe_integration import MediaPipeProcessor
             return MediaPipeProcessor(**kwargs)
-        
-        elif model_type == 'metrabs':
-            from .metrabs_integration import MeTRAbsProcessor
-            return MeTRAbsProcessor(**kwargs)
         
         else:
             available = ', '.join(PoseProcessorManager.AVAILABLE_MODELS.keys())
@@ -142,30 +137,6 @@ class PoseProcessorManager:
                 ]
             }
         
-        elif model_type == 'metrabs':
-            return {
-                'name': 'MeTRAbs Pose',
-                'description': 'High-accuracy pose estimation with test-time augmentation',
-                'landmarks': 17,  # COCO format
-                'keypoints': 25,  # After conversion to BODY_25
-                'advantages': [
-                    'Higher accuracy than MediaPipe',
-                    'Supports test-time augmentation',
-                    'Better handling of occlusions',
-                    'More robust to challenging poses'
-                ],
-                'disadvantages': [
-                    'Slower than MediaPipe',
-                    'Requires more computational resources',
-                    'May need GPU for optimal performance'
-                ],
-                'best_for': [
-                    'High-accuracy applications',
-                    'Research and analysis',
-                    'Offline processing'
-                ]
-            }
-        
         else:
             raise ValueError(f"Unknown model type: {model_type}")
 
@@ -177,13 +148,13 @@ class UnifiedPoseProcessor:
     
     def __init__(self, 
                  model_type: str = 'mediapipe',
-                 output_dir: str = 'pose_output',
+                 output_dir: str = 'outputs/mediapipe',
                  **kwargs):
         """
         Initialize the unified pose processor.
         
         Args:
-            model_type: Type of pose model ('mediapipe' or 'metrabs')
+            model_type: Type of pose model ('mediapipe' or other supported models)
             output_dir: Base output directory
             **kwargs: Additional arguments for the specific processor
         """

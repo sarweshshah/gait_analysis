@@ -48,7 +48,9 @@ wheels/
 *.log
 logs/
 
-# Results
+# Results and Outputs
+outputs/
+results/
 gait_analysis_results/
 mediapipe_output/
 test_results/
