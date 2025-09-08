@@ -611,6 +611,7 @@ def main():
     parser.add_argument("--no-connections", action="store_true", help="Disable connections between keypoints")
     parser.add_argument("--show-confidence", action="store_true", help="Show confidence values on keypoints")
     parser.add_argument("--trail-alpha", type=float, default=0.3, help="Alpha value for trail effect (0.0 to 1.0)")
+    parser.add_argument("--loop", action="store_true", help="Loop the video playback")
 
     args = parser.parse_args()
 
@@ -626,6 +627,7 @@ def main():
         show_connections=not args.no_connections,
         show_confidence=args.show_confidence,
         trail_alpha=args.trail_alpha,
+        loop_video=args.loop
     )
 
 
