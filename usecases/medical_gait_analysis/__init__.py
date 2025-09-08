@@ -22,9 +22,9 @@ from .medical_training_pipeline import MedicalGaitTrainingPipeline
 __version__ = "1.0.0"
 __all__ = [
     "MedicalGaitEvents",
-    "HydrocephalusGaitEvents", 
+    "HydrocephalusGaitEvents",
     "MedicalGaitClassifier",
     "HydrocephalusClassifier",
     "MedicalGaitDataProcessor",
-    "MedicalGaitTrainingPipeline"
+    "MedicalGaitTrainingPipeline",
 ]

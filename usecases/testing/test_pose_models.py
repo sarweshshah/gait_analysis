@@ -9,6 +9,7 @@ This script tests the integration of pose estimation models.
 import os
 import sys
 import logging
+import pytest
 from pathlib import Path
 
 # Add the project root to the path
@@ -20,101 +21,114 @@ from core.pose_processor_manager import UnifiedPoseProcessor, PoseProcessorManag
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 def test_model_availability():
     """Test if all models are available."""
     print("Testing model availability...")
-    
+
     available_models = PoseProcessorManager.get_available_models()
     print(f"Available models: {list(available_models.keys())}")
-    
+
+    assert len(available_models) > 0, "No models are available"
+
     for model_type in available_models.keys():
         try:
             info = PoseProcessorManager.get_model_info(model_type)
             print(f"✓ {model_type}: {info['name']}")
+            assert info is not None, f"Model info is None for {model_type}"
         except Exception as e:
             print(f"✗ {model_type}: Error - {e}")
-    
-    return True
+            raise
+
 
 def test_processor_creation():
     """Test creating pose processors."""
     print("\nTesting processor creation...")
-    
+
     try:
         # Test MediaPipe processor
         print("Creating MediaPipe processor...")
-        mediapipe_processor = UnifiedPoseProcessor(model_type='mediapipe')
+        mediapipe_processor = UnifiedPoseProcessor(model_type="mediapipe")
         print("✓ MediaPipe processor created successfully")
+        assert mediapipe_processor is not None, "MediaPipe processor creation failed"
         mediapipe_processor.cleanup()
-        
-        return True
-        
+
     except Exception as e:
         print(f"✗ Processor creation failed: {e}")
-        return False
+        raise
+
 
 def test_model_switching():
     """Test switching between models."""
     print("\nTesting model switching...")
-    
+
     try:
         # Start with MediaPipe
-        processor = UnifiedPoseProcessor(model_type='mediapipe')
+        processor = UnifiedPoseProcessor(model_type="mediapipe")
         print("✓ Started with MediaPipe")
-        
+        assert processor is not None, "Processor creation failed"
+
         # Get model info
         info = processor.get_model_info()
         print(f"  Model: {info['name']}")
-        
+        assert info is not None, "Model info is None"
+
         processor.cleanup()
-        return True
-        
+
     except Exception as e:
         print(f"✗ Model switching failed: {e}")
-        return False
+        raise
+
+
+@pytest.fixture
+def video_path():
+    """Provide a test video path."""
+    return "videos/raw/sarwesh.mp4"
+
 
 def test_video_processing(video_path: str):
     """Test video processing with available models."""
     print(f"\nTesting video processing with: {video_path}")
-    
+
     if not os.path.exists(video_path):
         print(f"✗ Video file not found: {video_path}")
-        return False
-    
+        pytest.skip(f"Video file not found: {video_path}")
+
     available_models = PoseProcessorManager.get_available_models()
-    
+
     for model_type in available_models.keys():
         print(f"\nTesting {model_type}...")
-        
+
         try:
             with UnifiedPoseProcessor(model_type=model_type) as processor:
                 success = processor.process_video(video_path)
-                
+
                 if success:
                     print(f"✓ {model_type} processing successful")
                 else:
                     print(f"✗ {model_type} processing failed")
-                    
+                    assert False, f"{model_type} processing failed"
+
         except Exception as e:
             print(f"✗ {model_type} processing error: {e}")
-    
-    return True
+            raise
+
 
 def main():
     """Main test function."""
-    print("="*60)
+    print("=" * 60)
     print("POSE MODEL INTEGRATION TEST")
-    print("="*60)
-    
+    print("=" * 60)
+
     # Test 1: Model availability
     test_model_availability()
-    
+
     # Test 2: Processor creation
     test_processor_creation()
-    
+
     # Test 3: Model switching
     test_model_switching()
-    
+
     # Test 4: Video processing (if video available)
     video_path = "videos/raw/sarwesh1.mp4"  # Updated path to videos folder
     if os.path.exists(video_path):
@@ -122,15 +136,16 @@ def main():
     else:
         print(f"\nSkipping video processing test - video not found: {video_path}")
         print("To test video processing, place a video file in the videos/raw directory")
-    
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("TEST COMPLETED")
-    print("="*60)
+    print("=" * 60)
     print("\nSummary:")
     print("- MediaPipe should work if mediapipe is installed")
     print("- Additional models can be easily added to the system")
     print("- All models provide the same interface for easy switching")
     print("- Video processing test requires a video file in the videos/raw directory")
+
 
 if __name__ == "__main__":
     main()

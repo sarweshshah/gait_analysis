@@ -11,13 +11,13 @@ from .tcn_gait_model import create_gait_tcn_model, compile_gait_model
 from .gait_training import GaitTrainer, GaitMetrics
 
 __all__ = [
-    'UnifiedPoseProcessor',
-    'PoseProcessorManager',
-    'GaitDataPreprocessor',
-    'create_gait_tcn_model',
-    'compile_gait_model',
-    'GaitTrainer',
-    'GaitMetrics'
+    "UnifiedPoseProcessor",
+    "PoseProcessorManager",
+    "GaitDataPreprocessor",
+    "create_gait_tcn_model",
+    "compile_gait_model",
+    "GaitTrainer",
+    "GaitMetrics",
 ]
 
 __version__ = "1.0.0"

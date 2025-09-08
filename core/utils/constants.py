@@ -2,6 +2,7 @@
 Core-wide constants for gait analysis.
 Place shared labels here so both core models and usecases agree on schemas.
 """
+
 from typing import List, Dict
 
 # Common sides
@@ -19,9 +20,9 @@ EVENT_TYPES_BASIC: List[str] = [
 # Extended set (includes mid-stance markers)
 EVENT_TYPES_EXTENDED: List[str] = [
     "heel_strike",  # initial contact
-    "flat_foot",    # foot flat / loading response
-    "heel_off",     # terminal stance initiation
-    "toe_off",      # pre-swing/toe-off
+    "flat_foot",  # foot flat / loading response
+    "heel_off",  # terminal stance initiation
+    "toe_off",  # pre-swing/toe-off
 ]
 
 # Default exported set (kept as basic to preserve current behavior)

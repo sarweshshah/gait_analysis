@@ -18,6 +18,7 @@ from usecases.gait_analysis import GaitAnalysisPipeline, create_default_config
 from core.utils.config import ConfigManager
 from core.utils.logging_config import setup_logging
 
+
 def main():
     """Main entry point for gait analysis."""
     parser = argparse.ArgumentParser(
@@ -32,67 +33,44 @@ Examples:
   
   # Pose detection with real-time visualization
   python scripts/run_gait_analysis.py --input video.mp4 --with-visualization
-        """
+        """,
     )
     parser.add_argument(
-        "--config", 
-        type=str, 
-        default="gait_analysis",
-        help="Configuration file name (without .json extension)"
+        "--config", type=str, default="gait_analysis", help="Configuration file name (without .json extension)"
     )
-    parser.add_argument(
-        "--input", 
-        type=str, 
-        required=True,
-        help="Input video file path"
-    )
-    parser.add_argument(
-        "--output", 
-        type=str, 
-        default="outputs/gait_analysis",
-        help="Output directory for results"
-    )
-    
+    parser.add_argument("--input", type=str, required=True, help="Input video file path")
+    parser.add_argument("--output", type=str, default="outputs/gait_analysis", help="Output directory for results")
+
     # Feature toggle arguments
     parser.add_argument(
-        "--pose-detection-only", 
-        action="store_true",
-        help="Run only pose detection without gait analysis"
+        "--pose-detection-only", action="store_true", help="Run only pose detection without gait analysis"
     )
     parser.add_argument(
-        "--with-visualization", 
-        action="store_true",
-        help="Run pose detection with real-time visualization"
+        "--with-visualization", action="store_true", help="Run pose detection with real-time visualization"
     )
     parser.add_argument(
-        "--loop", 
-        action="store_true",
-        help="Loop the visualization video playback (default: play once)"
+        "--loop", action="store_true", help="Loop the visualization video playback (default: play once)"
     )
     parser.add_argument(
-        "--log-level", 
-        type=str, 
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Logging level"
+        "--log-level", type=str, default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="Logging level"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Setup logging
     log_file = f"outputs/logs/gait_analysis_{Path(args.input).stem}.log"
     logger = setup_logging(log_file=log_file, log_level=args.log_level)
-    
+
     try:
         # Load configuration
         config_manager = ConfigManager()
         config = config_manager.load_config(args.config)
-        
+
         # Update config with command line arguments
         config["input_file"] = args.input
         config["output_dir"] = args.output
         config["loop_video"] = args.loop
-        
+
         # Handle feature toggles (pose detection is always enabled)
         if args.pose_detection_only:
             config["enable_realtime_visualization"] = False
@@ -100,25 +78,26 @@ Examples:
         elif args.with_visualization:
             config["enable_realtime_visualization"] = True
             config["enable_gait_analysis"] = False
-        
+
         # Create and run pipeline
         pipeline = GaitAnalysisPipeline(config)
-        
+
         logger.info(f"Starting gait analysis for: {args.input}")
         logger.info(f"Output directory: {args.output}")
-        
+
         # Run the pipeline
         results = pipeline.run_complete_pipeline([args.input])
-        
+
         if results:
             logger.info("Gait analysis completed successfully")
         else:
             logger.error("Gait analysis failed")
             sys.exit(1)
-            
+
     except Exception as e:
         logger.error(f"Error running gait analysis: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
