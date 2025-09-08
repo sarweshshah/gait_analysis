@@ -11,13 +11,13 @@ Author: Gait Analysis System
 import os
 import json
 import numpy as np
-# import pandas as pd  # Unused import
+import pandas as pd
 from scipy import interpolate
 from scipy.signal import butter, filtfilt
-# import cv2  # Unused import
-from typing import List, Dict, Tuple
+import cv2
+from typing import List, Dict, Tuple, Optional
 import logging
-# from pathlib import Path  # Unused import
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

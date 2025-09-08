@@ -6,9 +6,9 @@ This module provides configuration management utilities for the gait analysis pr
 """
 
 import json
-# import os  # Unused import
+import os
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 
 class ConfigManager:

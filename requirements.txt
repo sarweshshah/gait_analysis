@@ -17,8 +17,8 @@ scikit-learn>=1.0.0
 tensorflow>=2.14.0,<2.15.0
 
 # Computer vision and pose estimation
-# MediaPipe version compatible with Python 3.9 (avoiding JAX dependencies)
-mediapipe==0.10.5
+# MediaPipe without JAX dependencies to avoid conflicts
+mediapipe>=0.10.0
 opencv-python>=4.5.0
 
 # Data visualization
@@ -39,8 +39,6 @@ pytest>=6.2.0
 black>=21.0.0
 flake8>=3.9.0
 
-# Version constraints for compatibility
-# Python 3.9 compatibility notes:
-# - MediaPipe 0.10.5 avoids JAX dependencies that require Python 3.10+
-# - TensorFlow 2.14.x is the last version with full Python 3.9 support
-# - protobuf version is managed by TensorFlow to avoid conflicts
+# Explicitly exclude problematic packages
+# JAX is not needed for this project and causes conflicts
+# protobuf version is managed by TensorFlow

@@ -9,8 +9,8 @@ Author: Gait Analysis System
 """
 
 import numpy as np
-# import pandas as pd  # Unused import
-# import tensorflow as tf  # Unused import
+import pandas as pd
+import tensorflow as tf
 from tensorflow import keras
 from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.metrics import classification_report, confusion_matrix, f1_score, precision_score, recall_score
@@ -428,10 +428,10 @@ class GaitTrainer:
         # Save detailed report
         report_file = os.path.join(self.output_dir, "classification_report.txt")
         with open(report_file, "w") as f:
-            f.write("Gait Analysis Classification Report\n")
+            f.write(f"Gait Analysis Classification Report\n")
             f.write(f"Task Type: {self.task_type}\n")
             f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-            f.write("Overall Metrics:\n")
+            f.write(f"Overall Metrics:\n")
             for key, value in metrics.items():
                 f.write(f"{key}: {value:.4f}\n")
             f.write(f"\nClassification Report:\n{report}")
@@ -458,25 +458,25 @@ class GaitTrainer:
 def main():
     """Example usage of the gait training pipeline."""
     # Initialize preprocessor
-    # preprocessor = GaitDataPreprocessor(confidence_threshold=0.3, filter_cutoff=6.0, window_size=30)  # Unused
+    preprocessor = GaitDataPreprocessor(confidence_threshold=0.3, filter_cutoff=6.0, window_size=30)
 
     # Model configuration
-    # model_config = {  # Unused variable
-    #     "num_classes": 4,  # For phase detection
-    #     "num_filters": 64,
-    #     "kernel_size": 3,
-    #     "num_blocks": 4,
-    #     "dropout_rate": 0.2,
-    #     "learning_rate": 0.001,
-    # }
+    model_config = {
+        "num_classes": 4,  # For phase detection
+        "num_filters": 64,
+        "kernel_size": 3,
+        "num_blocks": 4,
+        "dropout_rate": 0.2,
+        "learning_rate": 0.001,
+    }
 
     # Initialize trainer
-    # trainer = GaitTrainer(
-    #     data_preprocessor=preprocessor,
-    #     model_config=model_config,
-    #     task_type="phase_detection",
-    #     output_dir="gait_analysis_results",
-    # )
+    trainer = GaitTrainer(
+        data_preprocessor=preprocessor,
+        model_config=model_config,
+        task_type="phase_detection",
+        output_dir="gait_analysis_results",
+    )
 
     # Example data paths (replace with actual paths)
     # data_paths = ['path/to/video1/json', 'path/to/video2/json', ...]

@@ -484,10 +484,10 @@ class MediaPipeProcessor:
             return
 
         # Convert BGR to RGB for MediaPipe
-        # rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # Unused variable
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         # Create MediaPipe landmarks object for drawing
-        # landmarks = self.mp_pose.PoseLandmark  # Unused variable
+        landmarks = self.mp_pose.PoseLandmark
         pose_landmarks = []
 
         # Extract keypoints from frame data
