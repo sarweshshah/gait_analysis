@@ -361,8 +361,9 @@ class RealTimePoseVisualizer:
                 if display_frame is not None:
                     screenshots_dir = os.path.join(os.path.dirname(video_path), "screenshots")
                     os.makedirs(screenshots_dir, exist_ok=True)
+                    video_name = os.path.splitext(os.path.basename(video_path))[0]
                     timestamp = time.strftime("%Y%m%d_%H%M%S")
-                    screenshot_path = os.path.join(screenshots_dir, f"frame_{frame_count}_{timestamp}.png")
+                    screenshot_path = os.path.join(screenshots_dir, f"{video_name}_{frame_count}_{timestamp}.png")
                     cv2.imwrite(screenshot_path, display_frame)
                     print(f"Screenshot saved: {screenshot_path}")
                 else:
