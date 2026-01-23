@@ -4,10 +4,11 @@ Real-time Pose Visualization
 ===========================
 
 This script processes a video file and displays pose keypoints as dots
-in real-time, similar to the trail video approach but using MediaPipe.
+in real-time, similar to the trail video approach but using MediaPipe Tasks API.
 """
 
 import os
+import urllib.request
 
 # Suppress TensorFlow Lite feedback manager warnings - must be set before importing mediapipe
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -15,36 +16,94 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 import cv2
 import numpy as np
 import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 import time
 from typing import List, Tuple, Optional
 import argparse
 
+# Model URLs for automatic download
+POSE_LANDMARKER_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task"
+POSE_LANDMARKER_MODEL_LITE_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+POSE_LANDMARKER_MODEL_FULL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task"
+
+def get_model_path(model_complexity: int = 1) -> str:
+    """
+    Get the path to the pose landmarker model, downloading if necessary.
+    
+    Args:
+        model_complexity: 0=lite, 1=full, 2=heavy
+        
+    Returns:
+        Path to the model file
+    """
+    # Determine model URL and filename based on complexity
+    if model_complexity == 0:
+        model_url = POSE_LANDMARKER_MODEL_LITE_URL
+        model_name = "pose_landmarker_lite.task"
+    elif model_complexity == 2:
+        model_url = POSE_LANDMARKER_MODEL_URL  # heavy
+        model_name = "pose_landmarker_heavy.task"
+    else:
+        model_url = POSE_LANDMARKER_MODEL_FULL_URL
+        model_name = "pose_landmarker_full.task"
+    
+    # Create models directory in the project
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
+    models_dir = os.path.join(project_root, "models", "mediapipe")
+    os.makedirs(models_dir, exist_ok=True)
+    
+    model_path = os.path.join(models_dir, model_name)
+    
+    # Download if not exists
+    if not os.path.exists(model_path):
+        print(f"Downloading MediaPipe Pose Landmarker model ({model_name})...")
+        print(f"This is a one-time download. Please wait...")
+        try:
+            urllib.request.urlretrieve(model_url, model_path)
+            print(f"Model downloaded successfully to: {model_path}")
+        except Exception as e:
+            print(f"Error downloading model: {e}")
+            print(f"Please download manually from: {model_url}")
+            print(f"And place it at: {model_path}")
+            raise
+    
+    return model_path
+
 
 class RealTimePoseVisualizer:
-    """Real-time pose visualization with MediaPipe."""
+    """Real-time pose visualization with MediaPipe Tasks API."""
 
     def __init__(self, model_complexity: int = 1, min_detection_confidence: float = 0.5):
         """
         Initialize the real-time pose visualizer.
 
         Args:
-            model_complexity: MediaPipe model complexity (1=fast, 2=balanced, 3=accurate)
-                             Will be mapped to MediaPipe's 0-2 range internally
+            model_complexity: MediaPipe model complexity (0=lite, 1=full, 2=heavy)
             min_detection_confidence: Minimum confidence for pose detection
         """
-        # Map 1-3 input to 0-2 for MediaPipe
-        self.model_complexity = max(0, min(2, model_complexity - 1))
+        self.model_complexity = model_complexity
         self.min_detection_confidence = min_detection_confidence
-
-        # Initialize MediaPipe Pose
-        self.mp_pose = mp.solutions.pose
-        self.pose = self.mp_pose.Pose(
-            static_image_mode=False,
-            model_complexity=model_complexity,
-            smooth_landmarks=True,
-            min_detection_confidence=min_detection_confidence,
+        
+        # Get model path (downloads if necessary)
+        model_path = get_model_path(model_complexity)
+        
+        # Initialize MediaPipe Pose Landmarker with Tasks API
+        base_options = python.BaseOptions(model_asset_path=model_path)
+        options = vision.PoseLandmarkerOptions(
+            base_options=base_options,
+            running_mode=vision.RunningMode.VIDEO,
+            num_poses=1,
+            min_pose_detection_confidence=min_detection_confidence,
+            min_pose_presence_confidence=0.5,
             min_tracking_confidence=0.5,
+            output_segmentation_masks=False
         )
+        self.pose_landmarker = vision.PoseLandmarker.create_from_options(options)
+        
+        # Track timestamp for video mode
+        self.frame_timestamp_ms = 0
 
         # Define colors for MediaPipe's 33 landmarks (BGR format)
         self.colors = [
@@ -180,12 +239,18 @@ class RealTimePoseVisualizer:
         print("- Press 'c' to toggle connections")
         print("- Press 'r' to reset trail")
         print("- Press SPACE to pause/resume")
-        print("- Press '1', '2', '3' to change model complexity")
+        print("- Press '+'/'-' to adjust trail length")
+        print("- Press 's' to save screenshot")
 
         frame_count = 0
         paused = False
         trail_enabled = show_trail
         connections_enabled = show_connections
+        display_frame = None  # Will hold the current display frame for screenshots
+        
+        # Reset timestamp for video mode
+        self.frame_timestamp_ms = 0
+        frame_duration_ms = int(1000 / fps) if fps > 0 else 33
 
         while True:
             if not paused:
@@ -195,6 +260,7 @@ class RealTimePoseVisualizer:
                         print("\nEnd of video reached - restarting...")
                         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset to beginning
                         frame_count = 0
+                        self.frame_timestamp_ms = 0
                         self.keypoint_history.clear()  # Clear trail history for clean restart
                         continue
                     else:
@@ -202,8 +268,9 @@ class RealTimePoseVisualizer:
                         break
 
                 frame_count += 1
+                self.frame_timestamp_ms += frame_duration_ms
 
-                # Process frame with MediaPipe
+                # Process frame with MediaPipe Tasks API
                 keypoints = self._process_frame(frame)
 
                 if keypoints is not None:
@@ -280,36 +347,34 @@ class RealTimePoseVisualizer:
             elif key == ord(" "):
                 paused = not paused
                 print(f"Video: {'PAUSED' if paused else 'RESUMED'}")
-            elif key in [ord("1"), ord("2"), ord("3")]:
-                new_complexity = key - ord("0")
-                self._change_model_complexity(new_complexity)
+            elif key == ord("+") or key == ord("="):  # = is + without shift
+                self.max_history = min(100, self.max_history + 5)
+                print(f"Trail length: {self.max_history} frames")
+            elif key == ord("-") or key == ord("_"):
+                self.max_history = max(5, self.max_history - 5)
+                # Trim history if needed
+                while len(self.keypoint_history) > self.max_history:
+                    self.keypoint_history.pop(0)
+                print(f"Trail length: {self.max_history} frames")
+            elif key == ord("s"):
+                # Save current frame as screenshot
+                if display_frame is not None:
+                    screenshots_dir = os.path.join(os.path.dirname(video_path), "screenshots")
+                    os.makedirs(screenshots_dir, exist_ok=True)
+                    timestamp = time.strftime("%Y%m%d_%H%M%S")
+                    screenshot_path = os.path.join(screenshots_dir, f"frame_{frame_count}_{timestamp}.png")
+                    cv2.imwrite(screenshot_path, display_frame)
+                    print(f"Screenshot saved: {screenshot_path}")
+                else:
+                    print("No frame available for screenshot")
 
         cap.release()
         cv2.destroyAllWindows()
-        self.pose.close()
-
-    def _change_model_complexity(self, complexity: int):
-        """Change MediaPipe model complexity on the fly.
-
-        Args:
-            complexity: Input complexity level (1=fast, 2=balanced, 3=accurate)
-        """
-        # Map 1-3 input to 0-2 for MediaPipe
-        mapped_complexity = max(0, min(2, complexity - 1))
-        self.pose.close()
-        self.pose = self.mp_pose.Pose(
-            static_image_mode=False,
-            model_complexity=mapped_complexity,
-            smooth_landmarks=True,
-            min_detection_confidence=self.min_detection_confidence,
-            min_tracking_confidence=0.5,
-        )
-        # Show the original input complexity level to user
-        print(f"Model complexity changed to: {complexity} (mapped to MediaPipe level {mapped_complexity})")
+        self.pose_landmarker.close()
 
     def _process_frame(self, frame: np.ndarray) -> Optional[List[Tuple[int, int, float]]]:
         """
-        Process a single frame and extract pose keypoints.
+        Process a single frame and extract pose keypoints using Tasks API.
 
         Args:
             frame: Input frame
@@ -319,22 +384,27 @@ class RealTimePoseVisualizer:
         """
         # Convert BGR to RGB
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        
+        # Create MediaPipe Image
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
 
-        # Process with MediaPipe
-        results = self.pose.process(rgb_frame)
+        # Process with MediaPipe Tasks API (VIDEO mode requires timestamp)
+        results = self.pose_landmarker.detect_for_video(mp_image, self.frame_timestamp_ms)
 
-        if not results.pose_landmarks:
+        if not results.pose_landmarks or len(results.pose_landmarks) == 0:
             return None
 
-        # Extract keypoints
-        keypoints = []
-        landmarks = results.pose_landmarks.landmark
+        # Extract keypoints from first detected pose
+        landmarks = results.pose_landmarks[0]
 
+        # Convert to list of (x, y, confidence) tuples
+        keypoints = []
         for landmark in landmarks:
             # Convert normalized coordinates to pixel coordinates
             x = int(landmark.x * frame.shape[1])
             y = int(landmark.y * frame.shape[0])
-            confidence = landmark.visibility
+            # Use visibility as confidence (Tasks API uses visibility field)
+            confidence = landmark.visibility if hasattr(landmark, 'visibility') else landmark.presence
 
             keypoints.append((x, y, confidence))
 
@@ -581,7 +651,7 @@ class RealTimePoseVisualizer:
             y_pos += line_height
 
         # Minimal controls at bottom
-        controls_text = "q:quit | SPACE:pause | t:trail | c:connections"
+        controls_text = "q:quit | SPACE:pause | t:trail | c:conn | +/-:len | s:screenshot"
         text_size = cv2.getTextSize(controls_text, cv2.FONT_HERSHEY_SIMPLEX, 0.4, 1)[0]
         cv2.putText(
             frame,
@@ -604,7 +674,7 @@ def main():
         type=int,
         default=1,
         choices=[0, 1, 2],
-        help="MediaPipe model complexity (0=fast, 1=balanced, 2=accurate)",
+        help="MediaPipe model complexity (0=lite, 1=full, 2=heavy)",
     )
     parser.add_argument("--min-confidence", type=float, default=0.5, help="Minimum confidence for pose detection")
     parser.add_argument("--no-trail", action="store_true", help="Disable trail effect")

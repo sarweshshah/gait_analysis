@@ -1,10 +1,12 @@
 # Real-time Pose Visualization
 
-A real-time pose visualization system that processes video files and displays pose keypoints as colored dots with trail effects, similar to the trail video approach but using MediaPipe for pose estimation.
+A real-time pose visualization system that processes video files and displays pose keypoints as colored dots with trail effects, using MediaPipe Tasks API (0.10.x+) for pose estimation.
 
 ## Overview
 
 This visualization tool provides real-time pose keypoint tracking with customizable display options, making it perfect for gait analysis and pose estimation validation.
+
+> **Note**: This system uses the MediaPipe Tasks API which automatically downloads pose models on first run. Models are stored in `models/mediapipe/` (~10-30MB depending on complexity).
 
 ### Key Features
 
@@ -68,8 +70,7 @@ The visualization supports real-time keyboard controls:
 - **'c'**: Toggle keypoint connections on/off
 - **'r'**: Reset trail (clear all trails)
 - **SPACE**: Pause/resume video playback
-- **'1', '2', '3'**: Change model complexity (0=fast, 1=balanced, 2=accurate)
-- **'+', '-'**: Adjust trail length
+- **'+'/'-'**: Adjust trail length (5-100 frames)
 - **'s'**: Save current frame as screenshot
 
 ## Color Scheme
@@ -102,10 +103,8 @@ This color scheme makes it easy to distinguish different body parts and track th
 
 ### Performance Options
 
-- `--model-complexity`: Model complexity (0=fast, 1=balanced, 2=accurate)
+- `--model-complexity`: Model complexity (0=lite, 1=full, 2=heavy). Models are auto-downloaded on first use.
 - `--min-confidence`: Minimum confidence threshold (default: 0.5)
-- `--min-detection-confidence`: Detection confidence threshold (default: 0.5)
-- `--min-tracking-confidence`: Tracking confidence threshold (default: 0.5)
 
 ### Output Options
 
@@ -189,6 +188,15 @@ Customized visualization with specific parameters.
 - Try adjusting confidence threshold
 - Check video quality and lighting
 
+**"Error downloading model":**
+
+- Check your internet connection
+- The model files can be manually downloaded from:
+  - Lite: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task
+  - Full: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
+  - Heavy: https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task
+- Place downloaded files in `models/mediapipe/`
+
 ## Integration with Gait Analysis
 
 This visualization system is designed to work with the main gait analysis pipeline:
@@ -234,6 +242,11 @@ gait_analysis/
 │   └── gait_analysis/
 │       └── features/
 │           └── realtime_pose_visualization.py  # Main visualization script
+├── models/
+│   └── mediapipe/                              # Auto-downloaded pose models
+│       ├── pose_landmarker_lite.task           # Lite model (~10MB)
+│       ├── pose_landmarker_full.task           # Full model (~15MB)
+│       └── pose_landmarker_heavy.task          # Heavy model (~30MB)
 ├── videos/
 │   ├── raw/
 │   │   └── sarwesh1.mp4                        # Example video file

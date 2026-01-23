@@ -17,7 +17,8 @@ scikit-learn>=1.0.0
 tensorflow>=2.14.0,<2.15.0
 
 # Computer vision and pose estimation
-# MediaPipe without JAX dependencies to avoid conflicts
+# MediaPipe Tasks API (0.10.x+) - uses PoseLandmarker instead of legacy solutions.pose
+# Models are automatically downloaded on first run to models/mediapipe/
 mediapipe>=0.10.0
 opencv-python>=4.5.0
 

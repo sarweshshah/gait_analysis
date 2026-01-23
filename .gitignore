@@ -11,6 +11,8 @@ ENV/
 # Model files
 *.prototxt
 *.caffemodel
+*.task
+models/
 
 # Video files
 *.mp4
