@@ -16,8 +16,18 @@ The core modules provide the foundation for the gait analysis system, implementi
 
 ### Pose Estimation
 
-- **`pose_processor_manager.py`** - Unified pose processor manager supporting multiple pose estimation backends
+- **`pose_processor_manager.py`** - Unified pose processor manager with extensible architecture for multiple backends
 - **`mediapipe_integration.py`** - MediaPipe pose estimation integration with BODY_25 keypoint mapping
+
+**Currently Supported Frameworks:**
+| Framework | Status | Notes |
+|-----------|--------|-------|
+| MediaPipe | ✅ Implemented | Default, actively used |
+| OpenPose | ⚠️ Legacy | Code in `archive/`, not integrated into current system |
+| Others | ❌ Not implemented | Architecture ready for integration |
+
+**Current Limitations:**
+- Single-person detection only (`num_poses=1`). Multi-person detection is supported by MediaPipe but requires code changes to enable.
 
 ### Data Processing
 
@@ -43,25 +53,37 @@ The core modules provide the foundation for the gait analysis system, implementi
 **Key Features**:
 
 - **UnifiedPoseProcessor**: Single interface for all pose models
-- **PoseProcessorManager**: Manager class for creating pose processors
-- **PoseProcessor**: Abstract base class for pose processors
-- Model switching capabilities
+- **PoseProcessorManager**: Factory class for creating pose processors
+- **PoseProcessor**: Abstract base class defining the interface for pose processors
+- Model switching capabilities at runtime
 - Consistent API regardless of underlying model
-- Support for multiple pose estimation backends
+- Extensible architecture for adding new pose estimation backends
+
+**Currently Available Models**: Only `mediapipe` is implemented. The architecture is ready for additional models.
 
 **Usage**:
 
 ```python
-from core.pose_processor_manager import UnifiedPoseProcessor
+from core.pose_processor_manager import UnifiedPoseProcessor, PoseProcessorManager
 
-# Use MediaPipe (default)
+# Check available models
+print(PoseProcessorManager.get_available_models())  # {'mediapipe': 'MediaPipe Pose'}
+
+# Use MediaPipe (currently the only implemented backend)
 processor = UnifiedPoseProcessor(model_type='mediapipe')
 pose_data = processor.process_video("video.mp4")
 
-# Switch to another model (when available)
-processor.switch_model('other_model')
-pose_data = processor.process_video("video.mp4")
+# Switch to another model (when available in AVAILABLE_MODELS)
+# processor.switch_model('other_model')
+# pose_data = processor.process_video("video.mp4")
 ```
+
+**Adding a New Pose Backend**:
+
+1. Create a class inheriting from `PoseProcessor`
+2. Implement `process_video()`, `process_webcam()`, and `cleanup()` methods
+3. Add entry to `AVAILABLE_MODELS` dictionary
+4. Update `create_processor()` method in `PoseProcessorManager`
 
 ### mediapipe_integration.py
 

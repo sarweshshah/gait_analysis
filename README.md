@@ -140,21 +140,38 @@ python3 usecases/gait_analysis/main_gait_analysis.py \
 
 ## 🎯 Pose Estimation Models
 
+### Supported Frameworks
+
+| Framework | Status | Notes |
+|-----------|--------|-------|
+| **MediaPipe** | ✅ Implemented | Default, actively used |
+| **OpenPose** | ⚠️ Legacy | Code in `archive/`, not integrated |
+| **YOLO-Pose** | ❌ Not implemented | Architecture ready for integration |
+| **MMPose** | ❌ Not implemented | Architecture ready for integration |
+| **ViTPose** | ❌ Not implemented | Architecture ready for integration |
+
+### Current Limitations
+
+- **Single-person detection only**: The system is currently configured with `num_poses=1`, detecting only one person per frame. Multi-person detection is supported by MediaPipe but not yet implemented in this codebase.
+
 ### MediaPipe (Default)
 
 - **Speed**: Fast, real-time processing
 - **Accuracy**: Good for most applications
 - **Resource Usage**: Low, works on CPU
 - **Best For**: Real-time applications, mobile/edge devices
+- **Landmarks**: 33 pose landmarks, converted to BODY_25 format (25 keypoints)
 
 ### Adding New Models
 
-The system is designed to easily support additional pose estimation models:
+The system architecture is designed to easily support additional pose estimation models:
 
-1. Create a new processor class that inherits from `PoseProcessor`
-2. Implement the required abstract methods
+1. Create a new processor class that inherits from `PoseProcessor` abstract base class
+2. Implement the required abstract methods (`process_video`, `process_webcam`, `cleanup`)
 3. Add the model to the `AVAILABLE_MODELS` dictionary in `PoseProcessorManager`
 4. Update the `create_processor` method to handle the new model type
+
+See `core/pose_processor_manager.py` for the extensible architecture and `core/mediapipe_integration.py` for an implementation example.
 
 ### Model Comparison
 

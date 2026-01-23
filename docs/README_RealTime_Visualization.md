@@ -15,8 +15,12 @@ This visualization tool provides real-time pose keypoint tracking with customiza
 - **Customizable Display**: Multiple visualization options
 - **Interactive Controls**: Keyboard controls for real-time adjustments
 - **Confidence Display**: Optional confidence value visualization
-- **Model Selection**: Supports multiple pose estimation models
 - **Performance Modes**: Different complexity levels for speed vs accuracy
+
+### Current Limitations
+
+- **Single-person detection only**: The system is configured to detect only one person per frame (`num_poses=1`). If multiple people are present in the video, only one will be tracked. Multi-person detection is supported by MediaPipe but requires code modifications to enable.
+- **MediaPipe only**: Currently only the MediaPipe pose estimation backend is implemented. The architecture supports adding other frameworks (see `core/pose_processor_manager.py`).
 
 ### 🎨 Visualization Options
 

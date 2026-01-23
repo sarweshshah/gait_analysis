@@ -15,6 +15,100 @@ The TCN-based gait analysis system provides a complete pipeline for markerless g
 - **Comprehensive Evaluation**: Gait-specific metrics and visualization
 - **Real-time Processing**: Support for real-time pose estimation and visualization
 
+## Analysis Modes: Event Detection vs Phase Detection
+
+The gait analysis pipeline supports two mutually exclusive analysis modes, controlled by the `task_type` configuration parameter. You choose **one mode at a time** when running the pipeline.
+
+### Phase Detection (Default)
+
+**Task Type**: `'phase_detection'`
+
+Phase detection uses a **TCN deep learning model** to classify each frame into one of the gait phases. This approach:
+
+- Outputs a **per-frame class label** (continuous classification)
+- Requires **labeled training data** for supervised learning
+- Uses cross-validation training with metrics like accuracy, F1-score, precision, and recall
+- Best for applications requiring **continuous gait cycle segmentation**
+
+**Default 4-Phase Labels**:
+| Phase | Description |
+|-------|-------------|
+| `stance_left` | Left foot on ground, supporting body weight |
+| `swing_left` | Left foot in air, moving forward |
+| `stance_right` | Right foot on ground, supporting body weight |
+| `swing_right` | Right foot in air, moving forward |
+
+An alternative **7-phase** granularity is available (initial_contact, loading_response, mid_stance, terminal_stance, pre_swing, initial_swing, terminal_swing) by setting `num_classes: 7`.
+
+### Event Detection
+
+**Task Type**: `'event_detection'`
+
+Event detection uses **rule-based signal processing** to identify discrete biomechanical events. This approach:
+
+- Outputs **discrete timestamps** when specific events occur
+- Requires **no training data** - works out of the box
+- Uses peak detection and velocity analysis on keypoint trajectories
+- Best for applications requiring **specific gait event timing**
+
+**Detected Events**:
+| Event | Description |
+|-------|-------------|
+| Heel Strike | When foot first contacts the ground |
+| Toe Off | When foot leaves the ground |
+| Stance Phase | Period when foot is on ground (derived from events) |
+| Swing Phase | Period when foot is in air (derived from events) |
+| Double Support | Both feet on ground simultaneously |
+| Single Support | Only one foot on ground |
+
+**Calculated Metrics**: stride time, cadence (steps/minute), stance/swing durations, symmetry
+
+### Choosing Between Modes
+
+| Consideration | Phase Detection | Event Detection |
+|---------------|-----------------|-----------------|
+| Training data required | Yes | No |
+| Output type | Per-frame labels | Discrete timestamps |
+| Method | Deep learning (TCN) | Rule-based signal processing |
+| Setup complexity | Higher | Lower |
+| Customization | Train on your data | Adjust detection thresholds |
+| Best for | Continuous analysis | Timing-specific analysis |
+
+### Usage Examples
+
+```bash
+# Phase detection (default) - requires training
+python3 usecases/gait_analysis/main_gait_analysis.py \
+    --videos data/video.mp4 \
+    --task phase_detection \
+    --output outputs/gait_analysis/
+
+# Event detection - works immediately
+python3 usecases/gait_analysis/main_gait_analysis.py \
+    --videos data/video.mp4 \
+    --task event_detection \
+    --output outputs/gait_analysis/
+```
+
+### Running Both Modes
+
+If you need both event timestamps and continuous phase labels, run the pipeline twice with different `task_type` settings:
+
+```python
+from usecases.gait_analysis.main_gait_analysis import GaitAnalysisPipeline, create_default_config
+
+# Run event detection first (no training needed)
+config = create_default_config()
+config['task_type'] = 'event_detection'
+pipeline = GaitAnalysisPipeline(config)
+event_results = pipeline.run_complete_pipeline(['video.mp4'])
+
+# Then run phase detection (requires trained model or training data)
+config['task_type'] = 'phase_detection'
+pipeline = GaitAnalysisPipeline(config)
+phase_results = pipeline.run_complete_pipeline(['video.mp4'], labels=[0])
+```
+
 ## System Architecture
 
 ### Core Components
@@ -24,8 +118,18 @@ The system consists of several key components:
 1. **Pose Estimation Layer**
 
    - **MediaPipe Integration (`mediapipe_integration.py`)**: Fast, real-time pose estimation
-   - Both models output BODY_25 compatible format
-   - Automatic model selection and switching capabilities
+   - Outputs BODY_25 compatible format (25 keypoints)
+   - Extensible architecture for adding new pose estimation backends
+   
+   **Supported Frameworks:**
+   | Framework | Status | Notes |
+   |-----------|--------|-------|
+   | MediaPipe | ✅ Implemented | Default, 33 landmarks → 25 keypoints |
+   | OpenPose | ⚠️ Legacy | Code in `archive/`, not integrated |
+   | Others | ❌ Not implemented | Architecture ready for integration |
+   
+   **Current Limitations:**
+   - Single-person detection only (`num_poses=1`). Multi-person detection is supported by MediaPipe but not yet implemented in this codebase.
 
 2. **Data Preprocessing Layer**
 
