@@ -57,7 +57,7 @@ pip install scikit-learn
 
 # Install OpenCV
 echo "👁️  Installing OpenCV..."
-pip install opencv-python
+pip install "opencv-python>=4.5.0"
 
 # Install TensorFlow with specific version to avoid JAX conflicts
 echo "🧠 Installing TensorFlow (compatible version)..."
@@ -65,7 +65,7 @@ pip install "tensorflow>=2.14.0,<2.15.0"
 
 # Install MediaPipe without JAX dependencies
 echo "📱 Installing MediaPipe..."
-pip install mediapipe --no-deps
+pip install "mediapipe>=0.10.0" --no-deps
 
 # Install remaining MediaPipe dependencies manually (excluding JAX)
 echo "📦 Installing MediaPipe dependencies..."
