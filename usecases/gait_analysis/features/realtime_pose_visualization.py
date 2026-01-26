@@ -200,7 +200,7 @@ class RealTimePoseVisualizer:
     def process_video(
         self,
         video_path: str,
-        show_trail: bool = True,
+        show_trail: bool = False,
         trail_alpha: float = 0.3,
         show_connections: bool = True,
         show_confidence: bool = False,
