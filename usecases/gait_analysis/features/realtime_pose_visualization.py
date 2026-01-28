@@ -260,7 +260,6 @@ class RealTimePoseVisualizer:
                         print("\nEnd of video reached - restarting...")
                         cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset to beginning
                         frame_count = 0
-                        self.frame_timestamp_ms = 0
                         self.keypoint_history.clear()  # Clear trail history for clean restart
                         continue
                     else:
