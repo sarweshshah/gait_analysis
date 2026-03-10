@@ -142,13 +142,13 @@ python3 usecases/gait_analysis/main_gait_analysis.py \
 
 ### Supported Frameworks
 
-| Framework | Status | Notes |
-|-----------|--------|-------|
-| **MediaPipe** | ✅ Implemented | Default, actively used |
-| **OpenPose** | ⚠️ Legacy | Code in `archive/`, not integrated |
+| Framework     | Status             | Notes                              |
+| ------------- | ------------------ | ---------------------------------- |
+| **MediaPipe** | ✅ Implemented     | Default, actively used             |
+| **OpenPose**  | ⚠️ Legacy          | Code in `archive/`, not integrated |
 | **YOLO-Pose** | ❌ Not implemented | Architecture ready for integration |
-| **MMPose** | ❌ Not implemented | Architecture ready for integration |
-| **ViTPose** | ❌ Not implemented | Architecture ready for integration |
+| **MMPose**    | ❌ Not implemented | Architecture ready for integration |
+| **ViTPose**   | ❌ Not implemented | Architecture ready for integration |
 
 ### Current Limitations
 
@@ -192,7 +192,6 @@ The system includes an interactive real-time pose visualization tool that displa
 ### Example Visualizations
 
 ![Real-time pose visualization in outdoor environment](docs/visualizations/v_sneak_g1.png)
-
 ![Real-time pose visualization in lab environment](docs/visualizations/v_sneak_g2.png)
 
 ### Quick Demo
