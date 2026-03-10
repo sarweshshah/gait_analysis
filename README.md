@@ -189,6 +189,12 @@ python3 usecases/gait_analysis/main_gait_analysis.py \
 
 The system includes an interactive real-time pose visualization tool that displays pose keypoints as colored dots with trail effects.
 
+### Example Visualizations
+
+![Real-time pose visualization in outdoor environment](docs/visualizations/v_sneak_g1.png)
+
+![Real-time pose visualization in lab environment](docs/visualizations/v_sneak_g2.png)
+
 ### Quick Demo
 
 ```bash
