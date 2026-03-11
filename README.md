@@ -36,50 +36,15 @@ The unified pose processor manager makes it easy to add new pose estimation mode
 
 ```
 gait_analysis/
-├── core/                                       # Core system modules
-│   ├── utils/                                  # Utility modules
-│   │   ├── constants.py                        # Core constants
-│   │   ├── config.py                           # Configuration management
-│   │   └── logging_config.py                   # Logging configuration
-│   ├── pose_processor_manager.py               # Unified pose processor manager
-│   ├── mediapipe_integration.py                # MediaPipe pose estimation
-│   ├── gait_data_preprocessing.py              # Data preprocessing and feature extraction
-│   ├── gait_training.py                        # Training and evaluation module
-│   └── tcn_gait_model.py                       # Temporal Convolutional Network model
-├── usecases/                                   # Use case implementations
-│   ├── gait_analysis/                          # Main gait analysis use case
-│   │   ├── features/                           # Feature-specific implementations
-│   │   │   └── realtime_pose_visualization.py  # Real-time visualization
-│   │   ├── utils.py                            # Utilities for quick analysis
-│   │   └── main_gait_analysis.py               # Main pipeline orchestrator
-│   └── testing/                                # Testing and validation
-│       ├── test_pose_models.py                 # Pose model testing and comparison
-│       └── test_system.py                      # System testing and validation
-├── scripts/                                    # Utility scripts
-│   ├── pose_model_comparison.py                # Pose model comparison tool
-│   └── run_gait_analysis.py                    # Gait analysis runner
-├── configs/                                    # Configuration files
-│   ├── default.json                            # Default configuration
-│   └── gait_analysis.json                      # Configuration for pose models
-├── docs/                                       # Documentation
-│   ├── visualizations/                         # Generated visualizations
-│   ├── README_RealTime_Visualization.md        # Real-time visualization docs
-│   ├── README_TCN_Gait_Analysis.md             # TCN system documentation
-│   ├── README_Installation.md                  # Installation guide
-│   └── README_Changelog.md                     # Project changelog and history
-├── archive/                                    # Legacy scripts (see archive/README.md)
-├── data/                                       # Input data directory
-│   └── models/                                 # Trained models
-├── videos/                                     # Video files directory
-│   ├── raw/                                    # Raw video files
-│   └── sneak/                                  # Sneak gait videos
-└── outputs/                                    # Output results directory
-    ├── gait_analysis/                          # Gait analysis results
-    ├── mediapipe/                              # MediaPipe outputs
-    ├── test_results/                           # Test results
-    ├── logs/                                   # Application logs
-    └── models/                                 # Trained models
-    └── visualizations/                         # Generated visualizations
+├── core/           # Core system modules (pose processing, TCN model, training)
+├── usecases/       # Use case implementations (gait analysis, testing)
+├── scripts/        # Utility scripts
+├── configs/        # Configuration files
+├── docs/           # Documentation
+├── archive/        # Legacy scripts (see archive/README.md)
+├── data/           # Input data and trained models
+├── videos/         # Video files
+└── outputs/        # Output results (analysis, logs, models, visualizations)
 ```
 
 ## 🚀 Quick Start
@@ -222,19 +187,12 @@ All results are organized in the `outputs/` directory:
 
 ```
 outputs/
-├── gait_analysis/                      # Main gait analysis results
-│   ├── cv_metrics.json                 # Cross-validation metrics
-│   ├── fold_scores.json                # Per-fold performance
-│   ├── training_histories.json         # Training curves data
-│   ├── classification_report.txt       # Detailed classification report
-│   ├── confusion_matrix.png            # Confusion matrix visualization
-│   ├── training_curves.png             # Training curves plot
-│   └── detailed_results.json           # Complete results summary
-├── mediapipe/                          # MediaPipe pose detection outputs
-├── test_results/                       # Testing and validation results
-├── logs/                               # Application logs
-├── visualizations/                     # Charts, graphs, and visual outputs
-└── models/                             # Trained models and artifacts
+├── gait_analysis/      # Main gait analysis results
+├── mediapipe/          # MediaPipe pose detection outputs
+├── test_results/       # Testing and validation results
+├── logs/               # Application logs
+├── visualizations/     # Charts, graphs, and visual outputs
+└── models/             # Trained models and artifacts
 ```
 
 ## 📚 Documentation
